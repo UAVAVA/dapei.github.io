@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFF7EE">
+<title>共生体图鉴 · 你和 TA 是什么物种</title>
+<style>
+/* ============================================================
+   共生体图鉴 SYMBIOSIS CODEX  —  设计系统（奶油暖阳版）
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#FFF7EE;
+  --bg2:#FDEDDD;
+  --card:rgba(255,255,255,.70);
+  --card-hi:rgba(255,255,255,.92);
+  --line:rgba(176,124,88,.22);
+  --line-hi:rgba(176,124,88,.44);
+  --tx:#42302A;
+  --tx2:#7D6353;
+  --tx3:#A88E7C;
+  --you:#E8614E;
+  --ta:#3FA98A;
+  --c1:#D9754F;
+  --c2:#E8614E;
+  --c3:#E0A03C;
+  --c4:#A57BB8;
+  --r-lg:22px;
+  --r-md:16px;
+  --r-sm:11px;
+  --sh:0 16px 36px -20px rgba(150,100,66,.32);
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--tx);
+  line-height:1.65;
+  min-height:100vh;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* 背景光斑 */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(760px 520px at 10% -8%, rgba(255,198,138,.62), transparent 62%),
+    radial-gradient(680px 460px at 94% 2%, rgba(255,172,152,.50), transparent 62%),
+    radial-gradient(880px 680px at 50% 106%, rgba(198,178,232,.34), transparent 66%),
+    linear-gradient(180deg,#FFFAF3 0%,#FDF1E2 46%,#FFF7EC 100%);
+}
+/* 纸张颗粒 */
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.028;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection{background:rgba(232,97,78,.22);color:#3E2B21}
+
+/* ---------- 布局 ---------- */
+.wrap{width:100%;max-width:780px;margin:0 auto;padding:0 18px}
+.wrap-wide{max-width:980px}
+.page{display:none;animation:pageIn .5s cubic-bezier(.22,1,.36,1) both}
+.page.on{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.pad-top{padding-top:clamp(26px,5vw,52px)}
+.pad-bot{padding-bottom:64px}
+
+/* ---------- 通用组件 ---------- */
+.card{
+  background:linear-gradient(160deg,rgba(255,255,255,.88),rgba(255,252,247,.66));
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh);
+  position:relative;
+}
+.card::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.6),transparent 42%);
+  -webkit-mask:linear-gradient(#000,transparent 55%);mask:linear-gradient(#000,transparent 55%);
+}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:#B4573A;font-weight:700;
+  padding:7px 14px;border-radius:999px;
+  background:rgba(217,117,79,.10);
+  border:1px solid rgba(217,117,79,.28);
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:#D9754F;box-shadow:0 0 10px rgba(217,117,79,.7);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:inherit;font-size:16px;font-weight:700;letter-spacing:.02em;
+  padding:15px 30px;border-radius:999px;border:1px solid transparent;
+  cursor:pointer;transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s,background .22s,border-color .22s,opacity .2s;
+  -webkit-tap-highlight-color:transparent;text-decoration:none;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#E8614E 0%,#F08B5E 52%,#EDA83F 100%);
+  color:#fff;font-weight:800;
+  box-shadow:0 12px 28px -12px rgba(214,91,64,.62),inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 38px -14px rgba(214,91,64,.7),inset 0 1px 0 rgba(255,255,255,.45)}
+.btn-primary:active{transform:translateY(0) scale(.985)}
+.btn-ghost{
+  background:rgba(255,255,255,.66);color:var(--tx);
+  border-color:var(--line-hi);
+}
+.btn-ghost:hover{background:#fff;border-color:rgba(217,117,79,.5);transform:translateY(-2px);box-shadow:0 10px 22px -14px rgba(150,100,66,.5)}
+.btn-ghost:active{transform:translateY(0) scale(.985)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.btn-sm{font-size:14px;padding:11px 20px}
+
+/* ============================================================
+   首页
+   ============================================================ */
+.hero{padding-top:clamp(30px,6vw,64px);text-align:center}
+.hero h1{
+  font-size:clamp(34px,8.4vw,62px);
+  line-height:1.06;letter-spacing:-.02em;font-weight:900;
+  margin:20px 0 0;
+}
+.hero h1 .gd{
+  background:linear-gradient(100deg,#D9754F 0%,#E8614E 30%,#DE8E9C 66%,#A57BB8 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  display:inline-block;
+}
+.hero .sub{
+  margin:16px auto 0;max-width:520px;
+  color:var(--tx2);font-size:clamp(14.5px,3.6vw,16.5px);line-height:1.75;
+}
+.hero .sub b{color:var(--tx);font-weight:700}
+
+.hero-art{margin:22px auto 4px;max-width:400px;width:100%}
+.hero-art svg{width:100%;height:auto;display:block;filter:drop-shadow(0 20px 34px rgba(150,100,66,.28))}
+.float{animation:float 5.5s ease-in-out infinite}
+.float2{animation:float 5.5s ease-in-out infinite;animation-delay:-2.6s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:9px;
+  margin:26px 0 0;
+}
+.stat{
+  padding:13px 6px;border-radius:var(--r-md);min-width:0;
+  background:var(--card);border:1px solid var(--line);text-align:center;
+  box-shadow:0 8px 20px -16px rgba(150,100,66,.5);
+}
+.stat .n{
+  font-size:clamp(18px,5vw,25px);font-weight:900;letter-spacing:-.02em;
+  background:linear-gradient(120deg,#8C5334,#D9754F);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.stat .l{font-size:10.5px;color:var(--tx3);letter-spacing:.04em;margin-top:3px;white-space:nowrap}
+
+.cta{margin:26px 0 0;display:flex;flex-direction:column;align-items:center;gap:11px}
+.cta .hint{font-size:12.5px;color:var(--tx3)}
+
+/* 图鉴网格 */
+.section{margin-top:clamp(38px,8vw,66px)}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.section-h h2{font-size:clamp(18px,4.6vw,22px);font-weight:800;letter-spacing:-.01em}
+.section-h .note{font-size:12.5px;color:var(--tx3)}
+
+.codex{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+}
+@media(max-width:520px){.codex{grid-template-columns:repeat(4,1fr);gap:7px}}
+.cx{
+  aspect-ratio:1/1.06;border-radius:12px;
+  background:rgba(255,255,255,.56);
+  border:1px solid rgba(176,124,88,.18);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;position:relative;overflow:hidden;transition:.3s;
+}
+.cx .no{font-family:var(--mono);font-size:9.5px;color:var(--tx3);letter-spacing:.06em}
+.cx .mk{font-size:19px;filter:grayscale(1);opacity:.28}
+.cx .nm{font-size:9px;color:var(--tx3);text-align:center;line-height:1.2;padding:0 3px}
+.cx.got{
+  background:linear-gradient(160deg,rgba(255,205,170,.62),rgba(255,232,214,.75));
+  border-color:rgba(217,117,79,.42);
+}
+.cx.got .mk{filter:none;opacity:1}
+.cx.got .nm{color:#8C4A2E}
+.cx.got .no{color:rgba(196,90,56,.85)}
+.cx.got::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 20px rgba(217,117,79,.18)}
+
+/* 说明块 */
+.about{
+  margin-top:14px;padding:20px;border-radius:var(--r-md);
+  background:rgba(255,255,255,.52);border:1px solid var(--line);
+  font-size:13.5px;color:var(--tx2);line-height:1.85;
+}
+.about b{color:var(--tx);font-weight:700}
+.about .warn{color:#B97A17}
+.about p+p{margin-top:11px}
+
+/* ============================================================
+   答题页
+   ============================================================ */
+.quiz-top{
+  position:sticky;top:0;z-index:30;
+  background:rgba(255,247,238,.86);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--line);
+  padding:11px 0 10px;
+}
+.quiz-top .row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+.quiz-top .idx{font-family:var(--mono);font-size:12.5px;color:var(--tx3);letter-spacing:.06em}
+.quiz-top .idx b{color:var(--tx);font-size:15px}
+.quiz-top .dim{
+  font-size:11.5px;color:#B4573A;letter-spacing:.11em;
+  padding:4px 11px;border-radius:999px;background:rgba(217,117,79,.10);
+  border:1px solid rgba(217,117,79,.24);white-space:nowrap;
+}
+.track{height:5px;border-radius:999px;background:rgba(176,124,88,.18);overflow:hidden}
+.track i{
+  display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,#EDA83F,#E8614E,#D9754F);
+  box-shadow:0 0 10px rgba(217,117,79,.5);
+  transition:width .45s cubic-bezier(.22,1,.36,1);
+}
+
+.q-body{padding:clamp(22px,5vw,38px) 0 0}
+.q-title{
+  font-size:clamp(19px,4.9vw,25px);font-weight:800;line-height:1.5;letter-spacing:-.005em;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.q-title .qi{
+  font-family:var(--mono);font-size:12px;color:#C05A38;font-weight:700;
+  padding:5px 8px;border-radius:7px;background:rgba(217,117,79,.10);
+  border:1px solid rgba(217,117,79,.24);flex:none;margin-top:5px;letter-spacing:.04em;
+}
+.q-hint{font-size:13px;color:var(--tx3);margin-top:11px;padding-left:2px}
+
+.opts{margin-top:22px;display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;gap:13px;align-items:flex-start;text-align:left;width:100%;
+  font-family:inherit;font-size:15px;line-height:1.6;color:var(--tx);
+  padding:16px 17px;border-radius:var(--r-md);
+  background:rgba(255,255,255,.68);border:1px solid rgba(176,124,88,.20);
+  box-shadow:0 6px 16px -14px rgba(150,100,66,.6);
+  cursor:pointer;transition:background .2s,border-color .2s,transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.opt:hover{background:#fff;border-color:rgba(217,117,79,.4);transform:translateX(3px);box-shadow:0 12px 24px -16px rgba(150,100,66,.7)}
+.opt .ok{
+  flex:none;width:26px;height:26px;border-radius:8px;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12.5px;font-weight:700;
+  background:rgba(176,124,88,.10);border:1px solid rgba(176,124,88,.22);color:var(--tx2);
+  transition:.2s;
+}
+.opt.sel{
+  background:linear-gradient(120deg,rgba(255,206,176,.85),rgba(255,233,209,.9));
+  border-color:rgba(217,117,79,.6);
+  box-shadow:0 0 0 1px rgba(217,117,79,.18),0 12px 26px -16px rgba(217,117,79,.6);
+  transform:translateX(3px);
+}
+.opt.sel .ok{background:linear-gradient(135deg,#E8614E,#E0A03C);color:#fff;border-color:rgba(217,117,79,.5);box-shadow:0 6px 14px -6px rgba(217,117,79,.6)}
+.opt .ot{flex:1;min-width:0}
+
+.alert{
+  margin-top:14px;padding:12px 15px;border-radius:var(--r-sm);
+  background:rgba(232,97,78,.10);border:1px solid rgba(232,97,78,.32);
+  color:#B34634;font-size:13.5px;display:none;align-items:center;gap:9px;
+}
+.alert.show{display:flex;animation:shake .45s}
+@keyframes shake{0%,100%{transform:translateX(0)}22%{transform:translateX(-6px)}44%{transform:translateX(5px)}66%{transform:translateX(-3px)}88%{transform:translateX(2px)}}
+.alert .ai{font-size:15px}
+
+.q-actions{
+  margin-top:26px;display:flex;gap:11px;align-items:center;
+}
+.q-actions .btn{flex:1}
+.q-actions .btn-ghost{flex:0 0 auto;min-width:104px}
+
+.dots{
+  margin:24px 0 0;padding:14px;border-radius:var(--r-md);
+  background:rgba(255,255,255,.52);border:1px solid var(--line);
+}
+.dots-h{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--tx3);margin-bottom:11px;letter-spacing:.06em}
+.dots-h b{color:var(--tx2)}
+.dotgrid{display:flex;flex-wrap:wrap;gap:6px}
+.nd{
+  width:29px;height:29px;border-radius:8px;flex:none;
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  background:rgba(255,255,255,.7);border:1px solid rgba(176,124,88,.22);
+  color:var(--tx3);cursor:pointer;transition:.18s;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.nd:hover{border-color:rgba(217,117,79,.5);color:var(--tx)}
+.nd.done{background:rgba(63,169,138,.14);border-color:rgba(63,169,138,.42);color:#2C7D69}
+.nd.cur{background:rgba(165,123,184,.20);border-color:rgba(165,123,184,.6);color:#6B4B84;box-shadow:0 0 12px rgba(165,123,184,.3)}
+.nd.miss{background:rgba(232,97,78,.09);border-color:rgba(232,97,78,.30);color:#C05A48}
+/* 当前题 + 已答：保留「已答」的绿底，叠加定位用的紫描边 */
+.nd.cur.done{
+  background:linear-gradient(135deg,rgba(165,123,184,.30),rgba(63,169,138,.22));
+  border-color:rgba(165,123,184,.72);color:#5E4177;
+  box-shadow:0 0 13px rgba(165,123,184,.35);
+}
+
+/* ============================================================
+   结果页
+   ============================================================ */
+.rarity{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin:0 auto;padding:9px 20px;border-radius:999px;width:fit-content;
+  font-size:13px;font-weight:800;letter-spacing:.1em;
+}
+.rar-legend{background:linear-gradient(100deg,rgba(255,201,110,.62),rgba(255,170,140,.55));border:1px solid rgba(208,140,42,.55);color:#8A5310;box-shadow:0 8px 22px -12px rgba(208,140,42,.7)}
+.rar-sr{background:rgba(165,123,184,.18);border:1px solid rgba(165,123,184,.5);color:#6B4B84}
+.rar-r{background:rgba(63,169,138,.16);border:1px solid rgba(63,169,138,.45);color:#2C7D69}
+.rar-n{background:rgba(255,255,255,.72);border:1px solid var(--line-hi);color:var(--tx2)}
+
+.res-head{text-align:center;padding:clamp(24px,5vw,40px) 0 0}
+.res-no{font-family:var(--mono);font-size:11.5px;color:var(--tx3);letter-spacing:.24em}
+.res-name{
+  font-size:clamp(32px,8.6vw,58px);font-weight:900;line-height:1.08;letter-spacing:-.025em;
+  margin:14px 0 0;
+}
+.res-name .gd{
+  background:linear-gradient(100deg,#C9622F,#E8614E 40%,#DC8E9C 72%,#A57BB8);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.res-sci{
+  font-family:var(--mono);font-size:12.5px;color:var(--tx3);letter-spacing:.1em;
+  margin-top:9px;font-style:italic;
+}
+.res-pair{
+  display:flex;align-items:center;justify-content:center;gap:clamp(8px,3vw,18px);
+  margin-top:20px;flex-wrap:wrap;
+}
+.pside{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:11px 16px;border-radius:var(--r-md);min-width:96px;
+  background:rgba(255,255,255,.62);border:1px solid var(--line);
+}
+.pside .who{font-size:10.5px;letter-spacing:.18em;color:var(--tx3)}
+.pside .sp{font-size:16px;font-weight:800;letter-spacing:.01em}
+.pside.you .sp{color:#C9452F}
+.pside.ta .sp{color:#2C8A70}
+.pside.you{border-color:rgba(232,97,78,.32);background:rgba(232,97,78,.08)}
+.pside.ta{border-color:rgba(63,169,138,.32);background:rgba(63,169,138,.08)}
+.px{font-size:21px;color:var(--tx3);font-weight:300}
+
+.res-art{margin:20px auto 0;max-width:440px}
+.res-art svg{width:100%;height:auto;display:block;border-radius:var(--r-lg);box-shadow:0 18px 34px -22px rgba(150,100,66,.6)}
+
+.motto{
+  margin:22px 0 0;text-align:center;font-size:clamp(15px,3.9vw,18px);
+  line-height:1.7;color:var(--tx);font-weight:600;
+  padding:0 8px;
+}
+.motto::before{content:'「'}
+.motto::after{content:'」'}
+
+.res-card{margin-top:22px;padding:clamp(20px,4.4vw,28px)}
+.res-card h3{
+  font-size:13px;letter-spacing:.16em;color:#B4573A;font-weight:800;
+  margin-bottom:14px;display:flex;align-items:center;gap:9px;
+}
+.res-card h3::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(176,124,88,.4),transparent)}
+.res-card p{font-size:14.8px;color:var(--tx2);line-height:1.9}
+.res-card p b{color:var(--tx);font-weight:700}
+
+.radar-wrap{display:flex;justify-content:center;padding:6px 0 2px}
+.radar-wrap svg{width:100%;max-width:360px;height:auto;display:block}
+
+.dimbar{margin-top:15px}
+.dimbar:first-of-type{margin-top:4px}
+.dimbar .dl{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;margin-bottom:7px}
+.dimbar .dl .dn{color:var(--tx2)}
+.dimbar .dl .dv{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--tx)}
+.dimbar .dt{height:8px;border-radius:999px;background:rgba(176,124,88,.16);overflow:hidden;position:relative}
+.dimbar .df{
+  display:block;height:100%;width:0;border-radius:999px;
+  transition:width 1.05s cubic-bezier(.22,1,.36,1);
+}
+.dimbar .dd{font-size:12px;color:var(--tx3);margin-top:6px;line-height:1.6}
+
+.lists{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+@media(max-width:620px){.lists{grid-template-columns:1fr}}
+.lbox{padding:16px;border-radius:var(--r-md);border:1px solid var(--line);background:rgba(255,255,255,.5)}
+.lbox h4{font-size:13px;font-weight:800;letter-spacing:.08em;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.lbox.good h4{color:#2C8A64}
+.lbox.risk h4{color:#C4473C}
+.lbox ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.lbox li{font-size:13.8px;color:var(--tx2);line-height:1.68;padding-left:17px;position:relative}
+.lbox li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:2px}
+.lbox.good li::before{background:#3FA98A;box-shadow:0 0 8px rgba(63,169,138,.5)}
+.lbox.risk li::before{background:#E8614E;box-shadow:0 0 8px rgba(232,97,78,.45)}
+
+.acts{margin-top:16px;display:flex;flex-direction:column;gap:11px}
+.act{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:16px 17px;border-radius:var(--r-md);
+  background:linear-gradient(120deg,rgba(255,222,196,.72),rgba(255,240,222,.72));
+  border:1px solid rgba(217,117,79,.22);
+}
+.act .an{
+  flex:none;width:27px;height:27px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12.5px;font-weight:800;
+  background:linear-gradient(135deg,#E8614E,#E0A03C);color:#fff;
+  box-shadow:0 6px 14px -6px rgba(217,117,79,.6);
+}
+.act .at{font-size:14.4px;color:var(--tx);line-height:1.7}
+
+.res-actions{margin-top:26px;display:flex;flex-wrap:wrap;gap:11px}
+.res-actions .btn{flex:1 1 150px}
+
+.toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,26px);
+  background:rgba(66,48,42,.95);border:1px solid rgba(255,255,255,.14);
+  color:#FFF6EC;font-size:13.5px;padding:12px 22px;border-radius:999px;
+  box-shadow:0 18px 38px -16px rgba(90,58,40,.7);
+  opacity:0;pointer-events:none;transition:.34s cubic-bezier(.22,1,.36,1);z-index:99;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  max-width:calc(100vw - 44px);text-align:center;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.disclaim{
+  margin-top:26px;padding:16px 18px;border-radius:var(--r-md);
+  background:rgba(255,255,255,.45);border:1px dashed rgba(176,124,88,.34);
+  font-size:12.3px;color:var(--tx3);line-height:1.8;
+}
+.disclaim b{color:var(--tx2)}
+
+.foot{margin-top:34px;text-align:center;font-size:11.5px;color:var(--tx3);letter-spacing:.08em;line-height:2}
+.foot span{opacity:.7}
+
+@media(max-width:520px){
+  .wrap{padding:0 14px}
+  .res-actions{gap:9px}
+  .res-actions .btn-primary{flex:1 1 100%;padding:16px 20px}
+  .res-actions .btn-ghost{flex:1 1 calc(33.333% - 6px);min-width:0;font-size:13px;padding:12px 6px;letter-spacing:0}
+  .q-actions .btn-ghost{min-width:88px;padding-left:14px;padding-right:14px}
+  .opt{font-size:14.6px;padding:15px 15px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 首页 ==================== -->
+<section class="page on" id="pg-home">
+  <div class="wrap pad-top pad-bot">
+    <div class="hero">
+      <span class="eyebrow"><i class="dot"></i>共生体图鉴 · SYMBIOSIS CODEX</span>
+      <h1>你和 TA<br><span class="gd">到底是什么物种</span></h1>
+      <p class="sub">不谈「我爱你有几分」这种废话。我们直接给你们的这段关系做<b>物种鉴定</b>——22 道题，从 25 种共生体里，验出你俩独一无二的那一个搭配。</p>
+
+      <div class="hero-art" id="hero-art"></div>
+
+      <div class="stats">
+        <div class="stat"><div class="n">25</div><div class="l">共生体</div></div>
+        <div class="stat"><div class="n">22</div><div class="l">道题</div></div>
+        <div class="stat"><div class="n">4</div><div class="l">稀有度档</div></div>
+        <div class="stat"><div class="n">≈4</div><div class="l">分钟</div></div>
+      </div>
+
+      <div class="cta">
+        <button class="btn btn-primary" id="btn-start">开始物种鉴定 →</button>
+        <span class="hint">不用注册 · 不收集任何信息</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-h">
+        <h2>图鉴 · 25 种共生体</h2>
+        <span class="note" id="codex-progress">已解锁 0 / 25</span>
+      </div>
+      <div class="codex" id="codex-grid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-h"><h2>先说清楚这是什么</h2></div>
+      <div class="about">
+        <p><b>它是什么：</b>一份基于你俩日常相处细节的原创自评工具。所有「物种」名称、学名（是的，拉丁文是我瞎编的）、描述和插画，全部原创。</p>
+        <p><b>它不是什么：</b>不是心理学量表，没有科学认证，不构成任何心理诊断或关系建议。它也不能替你去和 TA 沟通。</p>
+        <p><b>关于稀有度：</b>报告里那个百分比，是对全部作答组合做 20 万次随机模拟后，这个物种的<b>真实出现概率</b>，不是随便标的装饰。概率低不代表更好，只代表更少见。</p>
+        <p class="warn">建议：把 TA 换成你真正在意的那个人（恋人、朋友、同事、家人、前任都行），然后凭第一反应答。想了三秒以上的，通常不是你真实的反应。</p>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>SYMBIOSIS CODEX · 原创自评工具 · 仅供娱乐</span><br>
+      <span>本页不联网、不上传、不采集任何数据</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 答题页 ==================== -->
+<section class="page" id="pg-quiz">
+  <div class="quiz-top">
+    <div class="wrap">
+      <div class="row">
+        <span class="idx">第 <b id="q-idx">1</b> / 22 题</span>
+        <span class="dim" id="q-dim">连接密度</span>
+      </div>
+      <div class="track"><i id="q-bar"></i></div>
+    </div>
+  </div>
+  <div class="wrap pad-bot" style="padding-top:6px">
+    <div class="q-body">
+      <h2 class="q-title" id="q-title"></h2>
+      <p class="q-hint" id="q-hint"></p>
+      <div class="opts" id="q-opts"></div>
+      <div class="alert" id="q-alert"><span class="ai">⚠</span><span id="q-alert-tx">这一题还没选，随便选一个最像的也行。</span></div>
+
+      <div class="q-actions">
+        <button class="btn btn-ghost" id="btn-prev">← 上一题</button>
+        <button class="btn btn-primary" id="btn-next">下一题 →</button>
+      </div>
+
+      <div class="dots">
+        <div class="dots-h">
+          <span>跳转 / 修改任意一题</span>
+          <span><b id="dots-done">0</b> 题已答 · <b id="dots-left">22</b> 题待答</span>
+        </div>
+        <div class="dotgrid" id="nav-dots"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 结果页 ==================== -->
+<section class="page" id="pg-result">
+  <div class="wrap wrap-wide pad-top pad-bot">
+    <div style="text-align:center"><span class="rarity" id="res-rarity">常见</span></div>
+
+    <div class="res-head">
+      <div class="res-no" id="res-no">No.00 / 25</div>
+      <h1 class="res-name"><span class="gd" id="res-name">共生体</span></h1>
+      <div class="res-sci" id="res-sci">Genus species</div>
+      <div class="res-pair">
+        <div class="pside you"><span class="who">你</span><span class="sp" id="res-you">—</span></div>
+        <div class="px">×</div>
+        <div class="pside ta"><span class="who">TA</span><span class="sp" id="res-ta">—</span></div>
+      </div>
+    </div>
+
+    <div class="res-art" id="res-art"></div>
+    <p class="motto" id="res-motto"></p>
+
+    <div class="card res-card">
+      <h3>关系画像</h3>
+      <p id="res-profile"></p>
+    </div>
+
+    <div class="card res-card">
+      <h3>四维基因</h3>
+      <div class="radar-wrap" id="res-radar"></div>
+      <div id="res-dims"></div>
+    </div>
+
+    <div class="card res-card">
+      <h3>这段关系的底牌</h3>
+      <div class="lists">
+        <div class="lbox good"><h4>◆ 你们赢在哪</h4><ul id="res-good"></ul></div>
+        <div class="lbox risk"><h4>◆ 会从哪里崩</h4><ul id="res-risk"></ul></div>
+      </div>
+    </div>
+
+    <div class="card res-card">
+      <h3>拿出这三张牌</h3>
+      <div class="acts" id="res-acts"></div>
+    </div>
+
+    <div class="res-actions">
+      <button class="btn btn-primary" id="btn-card">保存结果卡片</button>
+      <button class="btn btn-ghost" id="btn-copy">复制结果文案</button>
+      <button class="btn btn-ghost" id="btn-back">改答案重测</button>
+      <button class="btn btn-ghost" id="btn-again">全部重来</button>
+    </div>
+
+    <div class="disclaim">
+      <b>郑重说明：</b>本结果是基于你自己所选答案的原创自评解释，不是心理学评估、没有人格诊断效力、也没有任何科学认证。「共生体」「学名」「稀有度」均为本工具的虚构设定，只为好玩。关系里真正的答案永远在你们两个人之间，不在这个页面里。
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   维度定义
+   ============================================================ */
+const DIMS = {
+  L:{name:'连接密度', color:'#3FA98A', lo:'几乎断联', hi:'高度黏连',
+     desc:'你们互相进入对方生活的深度和频率'},
+  P:{name:'主动势能', color:'#A57BB8', lo:'TA 在推', hi:'你在推',
+     desc:'这段关系里，是谁在维持推进力'},
+  E:{name:'情绪透明度', color:'#E0A03C', lo:'全靠猜', hi:'摊开说',
+     desc:'真实感受有多少能顺利传到对方那里'},
+  F:{name:'未来确定性', color:'#E8614E', lo:'走一步看一步', hi:'路线很清楚',
+     desc:'你们对「接下来会怎样」有多清楚'}
+};
+
+/* ============================================================
+   22 道题
+   ============================================================ */
+const QUES = [
+/* ---------- 连接密度 L ---------- */
+{d:'L',q:'凌晨 1 点 47 分，手机在枕头边亮了，是 TA。你会——',
+ h:'凭第一反应选。别选你希望自己成为的那种人。',
+ o:[{t:'立刻拿起来秒回，然后开始想「我是不是回太快了」',s:2},
+    {t:'看一眼，锁屏，明天早上再回一句「刚看到」',s:0},
+    {t:'不回，但盯着那个红点看了很久，直到它自己消失',s:1}]},
+
+{d:'L',q:'你和 TA 的聊天记录往上翻，最快能翻到哪一天？',
+ o:[{t:'今天早上——因为我俩话实在太多了',s:2},
+    {t:'上周，中间还夹着好几条「在吗」',s:1},
+    {t:'要翻很久，翻到一半我就放弃了',s:0}]},
+
+{d:'L',q:'TA 一整天没有任何动静。你的第一反应是——',
+ o:[{t:'脑子里已经把「我们是不是该结束」这场戏演了三遍',s:2},
+    {t:'把 TA 的在线状态默默刷新了六次',s:1},
+    {t:'该干嘛干嘛，晚上顺口问一句「今天忙？」',s:0}]},
+
+{d:'L',q:'如果你们的关系是一个共享文件夹，现在里面装着什么？',
+ o:[{t:'照片、语音、外卖截图、追到一半的剧、三年前的转账记录',s:2},
+    {t:'几张截图、一份没填完的共享表格——全是正事',s:1},
+    {t:'几乎是空的，上一次往里放东西是两年前',s:0}]},
+
+{d:'L',q:'TA 发了一条朋友圈，照片里有一群人，没有你。你会——',
+ o:[{t:'点赞，然后点进某一个人的主页看了二十分钟',s:2},
+    {t:'划过去，毫不在意（但记住了发布时间）',s:1},
+    {t:'根本没刷到——我很少看朋友圈，也不太在意 TA 发什么',s:0}]},
+
+{d:'L',q:'你们上一次打电话——真的打电话，不是语音条——是什么时候？',
+ o:[{t:'昨天。而且聊了四十分钟，一句正事没有',s:2},
+    {t:'打过，是为了确认一件事，两分钟就挂了',s:1},
+    {t:'真的想不起来是哪个月的事了',s:0}]},
+
+{d:'L',q:'凌晨三点你做了个特别离谱的梦。第二天你会——',
+ o:[{t:'原原本本讲给 TA 听，包括梦里的背景音乐',s:2},
+    {t:'想一想，觉得说出来有点丢人，算了',s:1},
+    {t:'这种事没有可以讲的对象，自己消化掉',s:0}]},
+
+{d:'L',q:'你们的下一次见面是——',
+ o:[{t:'天天见 / 今天就见',s:2},
+    {t:'这周内，时间地点都定好了',s:1},
+    {t:'没约过，随缘',s:0}]},
+
+/* ---------- 主动势能 P ---------- */
+{d:'P',q:'你们最近三次计划（吃饭、见面、看展、旅行），是谁提的？',
+ o:[{t:'全是我提的，TA 负责说「好啊」',s:2},
+    {t:'有来有回，谁想到谁提',s:1},
+    {t:'全是 TA 提的，我负责说「好啊」',s:0}]},
+
+{d:'P',q:'你们对话框里，最后一条消息是谁发的？',
+ o:[{t:'是我。而且我已经等了一会儿了',s:2},
+    {t:'是 TA 发的，我正准备回',s:0},
+    {t:'轮着来，最近一条是 TA，上一条是我',s:1}]},
+
+{d:'P',q:'你们闹别扭了。第一个把话接回来的是谁？',
+ o:[{t:'我。就算错不在我，也是我先递梯子',s:2},
+    {t:'看谁错，谁错谁先开口',s:1},
+    {t:'TA。TA 总有办法把话头接回来',s:0}]},
+
+{d:'P',q:'TA 心情不好。你是——',
+ o:[{t:'第一个发现的，而且已经发了三条消息问怎么了',s:2},
+    {t:'发现的时候，TA 已经自己好了',s:1},
+    {t:'过了几天，才从别人嘴里知道这件事',s:0}]},
+
+{d:'P',q:'你们俩谁更常说「我们什么时候……」这句话？',
+ o:[{t:'我',s:2},
+    {t:'差不多，说不好',s:1},
+    {t:'TA',s:0}]},
+
+{d:'P',q:'如果明天你们谁都不主动，这段关系会——',
+ o:[{t:'直接停摆，像断电一样，一点声音都没有',s:2},
+    {t:'安静几天，然后有人先忍不住',s:1},
+    {t:'照常运转，因为一直是 TA 在推',s:0}]},
+
+{d:'P',q:'你身边的人怎么描述你们俩？',
+ o:[{t:'「你对 TA 是真的好」/「你也太上心了吧」',s:2},
+    {t:'「你俩挺好的」——然后说不出别的',s:1},
+    {t:'「TA 对你真好」/「感觉你被宠着」',s:0}]},
+
+{d:'P',q:'「我想你了」这句话，你说得多还是 TA 说得多？',
+ o:[{t:'我明显更多，而且我会数 TA 有没有回我一样的话',s:2},
+    {t:'差不多，但我更在意这句话有没有被认真回应',s:1},
+    {t:'TA 明显更多',s:0}]},
+
+/* ---------- 情绪透明度 E ---------- */
+{d:'E',q:'你不高兴的时候，TA 能看出来吗？',
+ o:[{t:'一眼就看出来，我还没开口 TA 就问「你是不是不爽」',s:2},
+    {t:'看不出来，得我主动说 TA 才知道',s:1},
+    {t:'一般看不出来，我也不打算说',s:0}]},
+
+{d:'E',q:'TA 做了件让你不太舒服的事。你会——',
+ o:[{t:'当场就说，哪怕气氛要冷一下',s:2},
+    {t:'先憋着，然后在别的事情上阴阳一下',s:1},
+    {t:'憋着，然后说服自己「算了，也不是什么大事」',s:0}]},
+
+{d:'E',q:'你心里那些「说不清但就是不痛快」的小情绪，TA 知道多少？',
+ o:[{t:'基本都知道，我会想办法让 TA 知道',s:2},
+    {t:'知道个大概，剩下的我自己消化',s:1},
+    {t:'几乎不知道，我演得挺好',s:0}]},
+
+/* ---------- 未来确定性 F ---------- */
+{d:'F',q:'你们聊过「以后」吗？明年、后年、更久的那种。',
+ o:[{t:'聊过，而且很具体——去哪、做什么、怎么安排',s:2},
+    {t:'提过，但都是玩笑式的「以后有机会」',s:1},
+    {t:'没聊过，聊这个太吓人了',s:0}]},
+
+{d:'F',q:'用一个词形容你们关系的下一步，你选——',
+ o:[{t:'「稳」——我知道它在哪，也知道它往哪去',s:2},
+    {t:'「悬」——我知道它在，但不知道它去哪',s:1},
+    {t:'「随」——去哪都行，反正我也没规划',s:0}]},
+
+{d:'F',q:'有人问你「你们俩算什么关系」，你会——',
+ o:[{t:'一句话就能说清楚',s:2},
+    {t:'说半天，最后说「就是……那种关系」',s:1},
+    {t:'笑一笑，转移话题',s:0}]}
+];
+
+/* ============================================================
+   25 种共生体
+   l: 连接密度 1-5 (5 最黏)   p: 主动势能 1-5 (5 = 你在推)
+   rc: 稀有度档 n / r / sr / legend
+   ============================================================ */
+const SPECIES = [
+/* ================= L1 平行 ================= */
+{l:1,p:1,no:1,mk:'🌵',name:'两株仙人掌',sci:'Cactus Duplex',
+ yu:'仙人掌',ta:'仙人掌',scene:5,yk:'plant',tk:'plant',
+ motto:'我们挨着长，一年不用浇一次水——但谁也没打算给对方遮个太阳。',
+ profile:'你俩挨得很近，但几乎不需要彼此。联系极少，谁都不难受，也不觉得缺了什么。这段关系形式上是存在的，实质上是一段被时间保存下来的标本。它不会变坏，也不会变好，它只会一直这样。',
+ good:['零消耗零压力，谁都不必演','真要哪天需要人，这份旧交情反而可能很牢','这段关系完全没有影响你的生活，这是很多人求而不得的状态'],
+ risk:['你会用「老朋友就是这样」解释一切，包括你其实不想再联系这件事','有些人你其实已经不想见了，只是没说出口','名义上的关系会占据你「还有朋友」的心理位置'],
+ acts:['诚实分个类：这段关系你想留、想放、还是想偶尔看一眼？分完就不用再纠结了','如果想留，一年主动一次，认真的那种','如果想放，允许自己放，不用告别仪式']},
+
+{l:1,p:2,no:2,mk:'👻',name:'空房子里的幽灵',sci:'Anima Domestica',
+ yu:'空房子',ta:'幽灵',scene:5,yk:'cubeobj',tk:'ghost',
+ motto:'你偶尔回来看看，我一直在这儿——虽然我从来没告诉过你我还在这儿。',
+ profile:'TA 偶尔会冒出来一次：一条节日祝福、一张老照片、一句「好久不见」。你每次都认真回应，然后又是漫长的安静。你一直留在原地，因为你觉得这样才叫「还在」。',
+ good:['你对关系的忠诚度很高，这在今天挺珍贵的','你从来不打扰对方，分寸感很好','这段关系对你来说是温暖的记忆，不是负担'],
+ risk:['你把自己设成了常驻待机，消耗的是你自己的情绪电量','「我一直在」其实是一句没有听众的承诺','你可能会为了保住一个幽灵，错过眼前站着的人'],
+ acts:['判断一下：如果 TA 一年都不出现，你现在的等待还有意义吗？给自己一个诚实的答案','把「等」改成「选」——是你选择保留这段记忆，不是你必须等','主动去维护一段双向关系，哪怕只是每周和同一个人吃饭']},
+
+{l:1,p:3,no:3,mk:'🚇',name:'平行地铁',sci:'Metropolitana Parallela',
+ yu:'地铁',ta:'地铁',scene:4,yk:'train',tk:'train',
+ motto:'我们每天都在同一条线上擦肩，谁也没打算换乘。',
+ profile:'你俩几乎不联系，但也没有谁在刻意回避。朋友圈互相看得见，偶尔点个赞，属于「认识很久但很久没说话」的关系。你们都在各自的线路上跑，车速都不慢。',
+ good:['零负担，谁都不必为对方的生活负责','底子还在，真要重启，一句「在吗」就够了','你们都没因为这段关系的冷淡受伤，说明边界是清楚的'],
+ risk:['这不是一段关系，这是一条记录','你们可能都在等对方先开口，最后双方都以为对方不需要','哪天真的需要帮忙，你会发现那个名字已经很多年没亮过了'],
+ acts:['想让它活，就主动一次，别问值不值得，只问「我想不想」','不想的话，接受它已经完成了，不用愧疚','把「有空一起吃饭」换成具体时间，或者干脆别说']},
+
+{l:1,p:4,no:4,mk:'🔦',name:'深海探照灯',sci:'Lux Abyssalis',
+ yu:'潜水员',ta:'深海',scene:1,yk:'blobobj',tk:'wave',
+ motto:'我举着灯往下照，照了这么久，光好像一直照在我自己身上。',
+ profile:'你偶尔会主动一次：一个电话、一次问候、一句「最近还好吗」。但每次都要先酝酿很久，而且回来的东西轻飘飘的。TA 不是恶意，TA 只是真的在那片深海里，你的光到不了那么深。',
+ good:['你还没放弃，但已经很克制，这是很健康的状态','你的主动是有选择的，不是无差别输出','你对自己的消耗有感知，这最重要'],
+ risk:['你可能会把「我努力过了」当成结论，然后继续待着','持续的没有反馈会慢慢磨损你的自我价值感','你会把「对方不回应」归因成自己不够好，这是错的'],
+ acts:['给自己一个明确的期限（比如再试两次），到期就停','把这段关系里的期待写下来，逐条问「对方知道吗」','把探照灯往别处照照，看看还有哪些关系在等你的光']},
+
+{l:1,p:5,no:5,mk:'🧊',name:'对着冰箱演讲',sci:'Orator Frigorificus',
+ yu:'演讲者',ta:'冰箱',scene:1,yk:'blob',tk:'cubeobj',
+ motto:'我说了两小时，你一直在嗡嗡响，我把它当成了掌声。',
+ profile:'你是那个还在努力的人：长消息、认真的分享、主动的邀约。TA 的回应像冰箱——稳定、有声音、有温度，但那是通电的声音，不是听懂的声音。你其实知道这一点，只是不太愿意承认。',
+ good:['你很真诚，这份真诚本身没问题','你还有能量去付出，说明你还没麻木','只要对方愿意转身，这段关系翻身会很快'],
+ risk:['冰箱不会主动开门','你的长篇输出正在变成单向的自我消耗','你越努力，对方越轻松，因为你的存在让 TA 完全不用做决定'],
+ acts:['把下一次的长消息砍到三句以内，看对方会不会追问','停止解释自己，只提一个具体请求，然后等','设一个明确期限和标准，到期没变化就停止投入——这是对自己负责']},
+
+/* ================= L2 低频 ================= */
+{l:2,p:1,no:6,mk:'🌊',name:'浮木与潮水',sci:'Lignum Fluitans',
+ yu:'浮木',ta:'潮水',scene:3,yk:'log',tk:'wave',
+ motto:'你什么时候来，我就什么时候动。你不来的那些天，我就平躺着。',
+ profile:'TA 想起来的时候会来找你，一聊能聊到半夜；不来的那几周，你也真的可以完全不想。你习惯了这种被动，甚至发展出一套说辞：「我们不需要天天联系。」听起来很成熟，但你心里知道自己没有选择权。',
+ good:['你确实没被关系绑架，生活质量不受对方影响','每次见面都能聊到深处，说明底子还在','情绪弹性很好，不会因为对方消失而崩'],
+ risk:['「不需要天天联系」和「没资格要求联系」是两件事，你分得清吗','你正在把关系的定义权完全交给对方','这种结构最容易被第三方轻易插进来，因为你从来不占位'],
+ acts:['问一次具体的问题：「你希望我们多久联系一次？」把模糊变明确','主动发起两次，看响应质量，而不是只看有没有回','给自己设个底线，超过就主动，而不是继续等']},
+
+{l:2,p:2,no:7,mk:'🌿',name:'含羞草与手指',sci:'Mimosa Pudica',
+ yu:'含羞草',ta:'手指',scene:2,yk:'plant',tk:'blob',
+ motto:'你碰我一下我就合起来，你走了我再慢慢张开——下次你再来，我还是会合起来。',
+ profile:'TA 偶尔碰你一下：一条消息、一次问候、一个忽然的关心。你反应很大，会想很久，会开心一整天，但你会把自己合起来，回得不咸不淡。TA 摸不清你是不是不在意，于是碰得更少了。',
+ good:['你很敏感，对方给一点你就能收到很多，幸福感性价比高','你谨慎的回应其实是在保护自己，不算坏事','这种关系很少失控'],
+ risk:['你的「合起来」会被误读成「不需要」','你正在亲手训练对方少来找你','内心活动和表面表现差距太大，这段关系的信息是失真的'],
+ acts:['下次 TA 来找你，把真实反应说出口：「你找我我真的很开心。」就一句','把你希望的联系频率明确讲一次，别指望对方猜','如果 TA 碰你的次数太少，你先碰一次']},
+
+{l:2,p:3,no:8,mk:'🐾',name:'错峰出没',sci:'Felis Alternans',
+ yu:'猫',ta:'猫',scene:4,yk:'cat',tk:'cat',
+ motto:'你早上来，我晚上来，猫粮一直是满的。我们都以为这是默契。',
+ profile:'你俩的发消息时间永远差着几个小时，但谁也不会追问。回一句、隔一天再回一句，节奏很怪，但双方都适应了，甚至觉得这样很舒服——不用秒回，也不用解释。',
+ good:['完全无内耗，谁都不会因为对方回得慢而生气','经得起长时间的沉默，不会因为不联系就散','两个人都保有高度的独立性'],
+ risk:['「错峰」很可能只是两个都在回避的人凑到了一起','你们可能都在等对方先认真，结果谁都没动','最容易在某个时刻被一句「我们好像很久没见了」点醒，然后发现已经没什么可聊'],
+ acts:['打破错峰，约一次同步的实时通话或见面，别再异步留言','直接问：「你觉得我们现在这样，是舒服还是疏远？」','如果都想升温，就立一个具体规则，比如每周固定一次同步聊天']},
+
+{l:2,p:4,no:9,mk:'✨',name:'萤火与长夜',sci:'Lampyris Intermittens',
+ yu:'萤火虫',ta:'黑夜',scene:4,yk:'bug',tk:'ghost',
+ motto:'我偶尔亮一下，你一直黑着——但我亮的时候，你确实看见我了。',
+ profile:'你是那个时不时冒出来的人：一条朋友圈评论、一个深夜的链接、一句「突然想起你」。TA 会回，但从不主动亮。你们的频率不高，属于「想起来了才聊」的关系，只是每次都是你想起来。',
+ good:['你没有过度消耗自己，这是聪明的做法','每次互动都有真实的情感密度','你的生活重心显然在别处，关系是加分项不是主菜'],
+ risk:['你可能把「偶尔亮一下」当成「关系还在」的证据，其实那只是你还在','你不太确定 TA 是在意还是只是礼貌','你会在某次没被回应后突然非常受伤，而对方完全不知道为什么'],
+ acts:['把「偶尔想起就发」变成一次明确的邀约，检验 TA 愿不愿意为你付出时间','观察 TA 有没有在你不出现的时候找过你——如果没有，这就是答案','允许自己降低频率，把省下的注意力放回自己身上']},
+
+{l:2,p:5,no:10,mk:'📢',name:'对井喊话',sci:'Puteus Clamans',
+ yu:'喊话的人',ta:'井',scene:3,yk:'blob',tk:'cubeobj',
+ motto:'我喊三句，你回一句，但那一声回音，能让我高兴一整天。',
+ profile:'你联系 TA 的频率不算高，但每次都是你先——而且每次你都准备得很认真。TA 是一口深井：不拒绝，不主动，回应得慢，但声音是真的。你从回音里确认关系还在，只是这口井从来不会自己冒出水来。',
+ good:['你对关系的投入是真诚且有质量的','你们的交流虽然少，但每次都有内容','你没有被关系绑住，还有大把自己的生活'],
+ risk:['回音是反射，不是回应','你正在用「TA 至少回了」说服自己，而忽略「从来都是我先」','长期单向，你会慢慢不愿意再喊，然后你们就真的凉了'],
+ acts:['把最近的对话截图翻一遍，数清楚发起比例——用数字而不是感觉判断','下次直接问一个不好回的问题：「在你这，我们现在算什么？」','如果连续三次都是你先、对方回得很短，允许自己停两个月，看看会发生什么']},
+
+/* ================= L3 适度 ================= */
+{l:3,p:1,no:11,mk:'🕊',name:'候鸟与季节',sci:'Aves Migratoriae',
+ yu:'候鸟',ta:'季节',scene:2,yk:'bird',tk:'blob',
+ motto:'你什么时候来，我就什么时候到。不是我在等，是我只知道这个时间。',
+ profile:'发起权基本在 TA 那边：TA 想起你了就来找你，聊得很热；TA 忙起来就消失几周，你也不问。你适应得非常好，因为你把「TA 会回来」当成了自然规律，就像季节一样可靠。',
+ good:['你对关系的耐受度极高，几乎不会被冷落伤到','每次重逢都很愉快，质量很高','你保有了完整的个人生活，不会因为关系起伏而失重'],
+ risk:['你其实并不确定 TA 会不会回来，你只是不敢问','「随缘」正在变成一种回避，把决定权完全交了出去','哪天季节不再来了，你会发现自己连问一句的资格都没有'],
+ acts:['明确告诉 TA 一次：「你消失的时候我会想你是不是不打算回来了。」把不确定说出来','把「等通知」改成「我定时间」——你定一次，看 TA 的反应','给自己设一个底线：多久没消息你会主动问，写下来']},
+
+{l:3,p:2,no:12,mk:'🎈',name:'牵在手里的气球',sci:'Balloona Suspensa',
+ yu:'气球',ta:'线',scene:3,yk:'blobobj',tk:'blob',
+ motto:'你不拉我，我也不会跑。我只是需要知道线还在你手上。',
+ profile:'TA 是那个偶尔拉一下线的人：发消息、约见面、提醒你吃饭。你飘着，飘得挺自在，但线在 TA 手里这件事，给你一种安心的重量。你们的频率刚好，不吵不闹，像老朋友一样有默契。',
+ good:['你的自由度很高，不会窒息','TA 的适度关照让你不至于飘走','这种结构特别耐久，能扛住长时间的平淡期'],
+ risk:['你正在习惯「被拉」，主动能力在退化','如果线长期不动，你会怀疑对面是不是放手了，但你不问','你以为自己很独立，其实安心完全建立在一根不属于你的线上'],
+ acts:['这周由你拉一次线，明确约一个具体的时间和地点','告诉 TA「你主动找我的时候我很开心」，把正向反馈给出去','试试连续一周自己安排所有社交，看看没有线的日子你是什么状态']},
+
+{l:3,p:3,no:13,mk:'🐧',name:'轮流站岗的企鹅',sci:'Aptenodytes Vicarius',
+ yu:'企鹅',ta:'企鹅',scene:2,yk:'penguin',tk:'penguin',
+ motto:'我不必一直抱着你，但我知道冷的时候往里挪，一定是你先动。',
+ profile:'这是「成熟」两个字的实体化。你们不需要每天说话，但从没担心对方消失；谁有事谁开口，谁方便谁安排。关系像一条安静的河，看不见水流，但一直在走。',
+ good:['舒适度极高，几乎零内耗','双方都有各自完整的生活，不会被关系吞掉','真遇到需要托付的事，这种关系往往比高黏度的更靠得住'],
+ risk:['太平静容易被误认为「没感情了」，尤其当你需要被激起情绪的时候','你们可能长期回避冲突，把问题堆在地毯下','某天其中一方想升温，另一方可能毫无察觉'],
+ acts:['主动制造一次「高浓度」时刻，比如一次长途旅行或一整天的深度对话','把一直没提的一件小事说出来，练习在安全的关系里表达不满','每季度问一次：「我们现在这个温度，你觉得够吗？」']},
+
+{l:3,p:4,no:14,mk:'🐕',name:'追飞盘的狗',sci:'Canis Discipeta',
+ yu:'狗',ta:'飞盘',scene:2,yk:'dog',tk:'blobobj',
+ motto:'我扔出去，你就飞出去叼回来——虽然严格来说，飞盘是被动的那一个。',
+ profile:'你负责发起，TA 负责接住并跑回来。你们之间有来有回，节奏舒服：一周聊几次，见面有安排，偶尔互相想起。你是主导的一方，但主导得很有分寸，因为你知道扔太用力，飞盘会掉沟里。',
+ good:['健康的关系基线，谁都不憋屈','你能主动也能克制，这种平衡很值钱','TA 的回应质量不错，说明 TA 至少在意被扔出去这件事'],
+ risk:['你会在意「飞盘为什么不会自己扔回来」','你可能会为了维持平衡，压掉一些其实很重要的需求','长期来看，你比 TA 更清楚这段关系现在在哪、要去哪'],
+ acts:['挑一次机会，把主导权交出去一整个约会：「这次你安排，我跟着」','把你心里那句「我好像总在操心」说出来，别让它自己发酵','记一下你俩最近 5 次见面的提议人分别是谁']},
+
+{l:3,p:5,no:15,mk:'🐦',name:'凿树啄木鸟',sci:'Dendrocopos Sollicitus',
+ yu:'啄木鸟',ta:'树',scene:2,yk:'bird',tk:'plant',
+ motto:'我敲一下，你就应一声。这个反馈让我觉得自己没在对着空气说话。',
+ profile:'你不黏人，但你是那个持续在敲的人：约饭、问近况、发好玩的东西。频率不高，但几乎每次都是你先。TA 是一棵好树，从不拒绝，也应声，但很少自己长出新枝来找你。关系是舒服的，只是木屑全是你凿的。',
+ good:['你给了这段关系稳定的存在感，不至于冷掉','适度的频率让双方都不累','你保持了独立性，不会掉进黏人的坑'],
+ risk:['「总是我」这件事会像利息一样慢慢累积','你越来越难判断 TA 是「享受」还是「无所谓」，因为回应太礼貌了','哪天你停下，会发现油门和刹车都在你脚下，而 TA 连驾驶座在哪都不知道'],
+ acts:['下次你想发消息时，先等 24 小时再决定要不要发','直接问一个需要思考的问题，比如「如果半年不见，你觉得我们还会是现在这样吗」，看 TA 是敷衍还是真的回答','给自己定个规则：连续三次主动无回应，就暂停一周']},
+
+/* ================= L4 高频 ================= */
+{l:4,p:1,no:16,mk:'🪐',name:'行星与卫星',sci:'Satelles Orbitalis',
+ yu:'卫星',ta:'行星',scene:5,yk:'planet',tk:'planet',
+ motto:'我不算围着你转，我只是……刚好我的轨道是你。',
+ profile:'TA 是那个高强度的发起者：频繁的消息、密集的安排、明确的热度。你处在被环绕的位置，不抗拒，甚至享受，但你的作息、情绪、周末安排，都已经悄悄对齐了 TA 的引力场。',
+ good:['你被照顾得非常充分，几乎不用操心关系的运转','关系热度和安全感都拉满','TA 的稳定输出让你很有底气'],
+ risk:['你已经有点分不清「我想」和「TA 要」了','你的独立性正在被高频互动吃掉','TA 的热度哪怕下降 20%，你都会立刻解读成「出事了」'],
+ acts:['重建一件完全属于自己的固定安排，每周雷打不动','下次 TA 问「周末干嘛」时，先说一次你自己的计划，再看怎么协调','把「TA 有没有回我」的焦虑写下来，一个月后回看，验证你的担心有多少真的发生了']},
+
+{l:4,p:2,no:17,mk:'🍚',name:'定时投喂',sci:'Felis Catus Dispensata',
+ yu:'橘猫',ta:'投喂机',scene:4,yk:'cat',tk:'cubeobj',
+ motto:'我不用喊，你到点就出现。这是我人生中最省力的一段关系。',
+ profile:'TA 会定时出现：早上问吃了没，晚上问到家没，周末问去哪儿。你是被投喂的那只，回应得也热情，但很少主动站到机器前面。这段关系运转得很顺，因为它只有一个发动机，而那个发动机目前还没坏。',
+ good:['你能获得极强的安全感，「被记挂」的体验非常珍贵','关系成本对你极低，几乎不需要维护','TA 因为被需要而有满足感，短期看是双赢'],
+ risk:['投喂机不是永动机，TA 会在某个疲惫的夜里突然问「那你呢」','你会失去感知对方状态的能力，因为你从来没主动看过','如果有一天投喂停了，你会先愤怒，然后才发现自己从没付出过对等的东西'],
+ acts:['这周抢在 TA 之前发一次早安，连着三次','主动问一次 TA 的状态，并且追问到具体的事，而不是「还好吧」','把「你今天怎么没找我」换成「我最近是不是有点被动，我想调整一下」']},
+
+{l:4,p:3,no:18,mk:'🐟',name:'并游双鱼',sci:'Pisces Gemelli',
+ yu:'鱼',ta:'鱼',scene:3,yk:'fish',tk:'fish',
+ motto:'谁也没跟着谁，我们只是刚好同一个方向，又刚好都舍不得停下来。',
+ profile:'高频率但完全对等：你发一句 TA 回三句，TA 分享一个链接你马上接上。没有人在追，也没有人在等。这是很少见的成熟结构——热度靠互相供给，而不是靠某一方的坚持。',
+ good:['最不容易累的结构','争吵后恢复速度快，因为双方都愿意先低头','话语权是平的，没人需要讨好'],
+ risk:['太均衡的关系容易失去张力，久了会有点像同事','你们可能都不敢做那个「要求更多」的人，怕破坏平衡','高频率也可能只是习惯，习惯一旦被工作或异地打断，会突然显形'],
+ acts:['主动制造一次「不一致」——提一个对方可能不同意的具体请求，把分歧拿到台面上','每半年做一次关系复盘，聊各自在这段关系里的投入感受','别让高频变成惯性，偶尔为对方做一件「超出常规」的事']},
+
+{l:4,p:4,no:19,mk:'🧡',name:'暖炉小熊猫',sci:'Ailurus Fulgens',
+ yu:'小熊猫',ta:'暖炉',scene:2,yk:'bear',tk:'blobobj',
+ motto:'我负责贴过来，你负责发热。分工明确，挺好。',
+ profile:'你是那个更愿意先说「在干嘛」的人，但如果 TA 不接，你也不会追。TA 是一个稳定的热源——不主动点火，但你凑过来 TA 就烧得挺旺。你俩形成了很舒服的默契：你给频率，TA 给温度。',
+ good:['节奏健康，既有热度又有各自的空间','你的主动性可控，不会滑到黏人那一步','TA 的响应质量通常很高，因为是「被邀请」而不是「被推销」'],
+ risk:['长期由你发起，你会慢慢积累一种「为什么总是我」的隐性委屈','这种委屈不会爆发，它会变成语气里的刺','TA 可能真的一直以为「这样挺好」，因为你从来没说过不是'],
+ acts:['下次冒出「又是我先开口」的念头时，直接说出来，用陈述句：「我最近总觉得是我在找你。」','约定一个双方都能主动的小仪式，比如周三互发一张今天的照片，降低单方面的发起压力','观察三个月的发起比例，超过 7:3 就摊开聊']},
+
+{l:4,p:5,no:20,mk:'🦋',name:'绕灯飞蛾',sci:'Lepidoptera Adsidua',
+ yu:'飞蛾',ta:'床头灯',scene:4,yk:'bug',tk:'blobobj',
+ motto:'我知道你只是亮着，不是为我亮的。但我不介意，我需要的就是那点光。',
+ profile:'你每天都想出现在 TA 的视野里，频率很高，但每次停留都不长：一句晚好、一张截图、一个「刚想到你」。TA 一直亮着，稳定、温和，不驱赶你，也不特别追你。频率对得上，但光的来源始终是 TA。',
+ good:['你提供的日常陪伴感极其稳定，是那种不说话也不尴尬的关系','你擅长用小成本维持高热度，性价比极高','机动性强，有空就贴过去，没空也不会有压力'],
+ risk:['飞蛾扑火是单向的，你围得越密，越容易忘了对方并没有朝你飞','高频低强度的互动会掩盖真实需求，你们可能从来没谈过一件事的核心','某天灯灭了，你会比想象中慌'],
+ acts:['把「今天开心吗」换成一次真正的邀约，把频率换成深度','数一数最近一个月 TA 主动找过你几次，记下来，不评判，只是看清','试着有一次完全不主动，看这段关系会不会自己亮起来']},
+
+/* ================= L5 连体 ================= */
+{l:5,p:1,no:21,mk:'🐹',name:'跑轮仓鼠',sci:'Mesocricetus Rotundus',
+ yu:'仓鼠',ta:'跑轮',scene:1,yk:'rodent',tk:'blobobj',
+ motto:'我也没想跑这么快，但轮子一直在转，我停下来就会被甩出去。',
+ profile:'TA 是那个推着关系往前冲的人：日程排满、随时在线、情绪密度拉满。你是被带着转的仓鼠——不讨厌，甚至有点上瘾，但脚一直是小跑状态。你很少主动设节奏，因为你从来没需要过，TA 已经把鼓点敲好了。',
+ good:['永远不会无聊，永远有新的事情发生','你被照顾得很省心，几乎不用做任何决策','关系热度长期维持在高位，看起来非常热闹'],
+ risk:['你正在丧失「发起」的能力，退出这段关系你会发现自己不会走路了','高转速消耗的是 TA 的主动力，TA 累了会说「你怎么什么都不做」','黏度这么高，一旦减速你会极度恐慌'],
+ acts:['连续一周，每天由你决定一件小事（去哪吃、看什么、几点散），不许反问','诚实告诉 TA「有时候我有点跟不上，你能慢一点吗」——把节奏问题摆到台面上','给自己找一个 TA 完全不知道的空间，哪怕只是每周一次的独自散步']},
+
+{l:5,p:2,no:22,mk:'🐱',name:'开罐即现',sci:'Felis Catus Automatica',
+ yu:'猫',ta:'罐头',scene:4,yk:'cat',tk:'blobobj',
+ motto:'你一开口，我连拖鞋都不穿就跑过来了。这不是没骨气，这叫条件反射。',
+ profile:'TA 是那个开罐头的人，你是那个一听见金属摩擦声就从沙发上弹起来的。这段关系的开关在 TA 手里，你负责随叫随到，而且你并不觉得委屈——因为罐头确实好吃。关系永远热闹，因为总有一个人在敲另一个人的门。',
+ good:['响应速度极快，任何一方有需求都能立刻被接住','你能从很小的关照里获得很大的满足，性价比极高','TA 被你需要的感觉，本身就是这段关系的黏合剂'],
+ risk:['你会慢慢把「被叫」当成「被爱」，几天没听见开罐声就开始怀疑自己过期了','这段关系的节奏由 TA 的情绪决定，而 TA 可能并不知道自己握着这个开关','你会忽略「我也想被主动找」这个需求，直到它变成怨气'],
+ acts:['这周主动发起一次约会，主题由你定，不许问 TA「你想干嘛」','把「你什么时候有空」换成「我周三晚上定了，你来不来」','认真告诉 TA：「你叫我，我很开心；但有时候我也希望是我在叫你。」']},
+
+{l:5,p:3,no:23,mk:'🦦',name:'手拉手漂流',sci:'Lutra Lutra Coniuncta',
+ yu:'水獭',ta:'水獭',scene:3,yk:'otter',tk:'otter',
+ motto:'听说水獭睡觉会手拉手，怕被冲散。我们俩也怕，所以我们也拉着。',
+ profile:'这是 25 种里最「对」的一种。你俩对这段关系的投入几乎完全对称：谁有空谁发起，谁先醒谁道早安，吵架了不用商量就知道谁先递台阶。黏度很高，但没人觉得窒息，因为两个人都在里面游。',
+ good:['抗压能力最强的结构，能量是双向供给的','沟通成本极低，很多事不用说完对方就懂了','哪怕分开一段时间，重新贴回去只需要一句话'],
+ risk:['太舒服的结构容易长草，你们可能几年都没认真聊过「我们到底要什么」','对称也意味着一旦有一方突然想变，另一方会感到整个系统失衡','容易让朋友觉得「你俩是不是有点排外」'],
+ acts:['每季度安排一次「不聊日常」的长谈，只聊下一个阶段各自动想要什么','各自保留一个完全不重叠的朋友圈，不要什么都一起做','把「我们」的钱、时间、计划各拆出一部分做「我」的']},
+
+{l:5,p:4,no:24,mk:'🐋',name:'藤壶与鲸',sci:'Coronula Cetaceae',
+ yu:'藤壶',ta:'座头鲸',scene:1,yk:'blobobj',tk:'whale',
+ motto:'你驮着我穿过整个海洋，我负责让你知道自己不是一个人。',
+ profile:'你是扒在 TA 身上的那只藤壶——牢固、随叫随到、享受被带着走的状态。TA 是鲸，块头大、脾气好、偶尔跃出水面透口气，但从没想过把你甩下去。你不介意自己小，因为你知道鲸鱼不会主动离开，只会游得太远。',
+ good:['稳定性极高，几乎不需要维护，关系自己就在转','你能给 TA 提供一种「有人在那儿」的踏实感','真出事了，鲸的力气加上藤壶的黏度，很难被打散'],
+ risk:['鲸鱼出海巡航的时候，藤壶是留在岸上的','你容易把自己的时间表绑在 TA 的迁徙路线上','长期下来，你会忘记自己本来游向哪'],
+ acts:['给自己养一件和 TA 完全无关的长期爱好，每周至少投入 3 小时','在 TA 忙的时候主动说「这几天我自己安排，你忙你的」，并真的执行掉','每个月问自己一次：如果 TA 明天出海一年，我的生活还剩什么？']},
+
+{l:5,p:5,no:25,mk:'🐙',name:'八爪缠身',sci:'Octopus Adhesivus Maximus',
+ yu:'章鱼',ta:'海螺',scene:1,yk:'octo',tk:'spiral',
+ motto:'我不是黏人，我只是长了八只手，而你刚好站在原地。',
+ profile:'你是这段关系里唯一在划水的那只桨。消息你先发，见面你先约，情绪你先递过去，TA 负责在原地被你的八条触手温柔地裹住。你觉得这叫亲密，TA 觉得这叫窒息——但 TA 说不出口，因为你做得太周到了。',
+ good:['关系永远有推进力，不会放着烂掉','你几乎不会漏掉 TA 的任何信号','遇到危机你永远第一个冲上去，抗风险能力其实是你一个人撑起来的'],
+ risk:['你的「付出」正在变成 TA 的义务','一旦你哪天收手，关系会像断电一样立刻停','你会把「TA 被动接受」误读成「TA 很满意」'],
+ acts:['这周挑一天，全天不主动发起任何对话，只回应，把「TA 会不会来找我」变成一个真实数据','下次提要求时用「我想」开头，而不是「我们是不是该」','直接问 TA 一句：「最近我是不是有点太满了？」——然后闭嘴听']}
+];
+/* ============================================================
+   配色工具
+   ============================================================ */
+const C_YOU = '#E8614E', C_TA = '#3FA98A';
+function shade(hex, amt){
+  const n = parseInt(hex.slice(1), 16);
+  let r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  const f = v => Math.max(0, Math.min(255, Math.round(amt < 0 ? v*(1+amt) : v+(255-v)*amt)));
+  return '#'+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+/* ============================================================
+   眼睛 / 嘴（通用件）
+   ============================================================ */
+function eyes(r, col, mood){
+  const ex = r*0.34, ey = -r*0.12, er = Math.max(1.6, r*0.115);
+  if(mood === 'sleep'){
+    return `<path d="M ${-ex-er} ${ey} q ${er} ${-er*0.85} ${er*2} 0" stroke="${col}" stroke-width="${er*0.72}" fill="none" stroke-linecap="round"/>`+
+           `<path d="M ${ex-er} ${ey} q ${er} ${-er*0.85} ${er*2} 0" stroke="${col}" stroke-width="${er*0.72}" fill="none" stroke-linecap="round"/>`;
+  }
+  if(mood === 'closed'){
+    return `<path d="M ${-ex-er} ${ey} q ${er} ${er*0.8} ${er*2} 0" stroke="${col}" stroke-width="${er*0.8}" fill="none" stroke-linecap="round"/>`+
+           `<path d="M ${ex-er} ${ey} q ${er} ${er*0.8} ${er*2} 0" stroke="${col}" stroke-width="${er*0.8}" fill="none" stroke-linecap="round"/>`;
+  }
+  if(mood === 'wide'){
+    return `<ellipse cx="${-ex}" cy="${ey}" rx="${er*1.25}" ry="${er*1.45}" fill="${col}"/>`+
+           `<ellipse cx="${ex}" cy="${ey}" rx="${er*1.25}" ry="${er*1.45}" fill="${col}"/>`+
+           `<circle cx="${-ex-er*0.35}" cy="${ey-er*0.45}" r="${er*0.45}" fill="#fff" opacity=".85"/>`+
+           `<circle cx="${ex-er*0.35}" cy="${ey-er*0.45}" r="${er*0.45}" fill="#fff" opacity=".85"/>`;
+  }
+  return `<circle cx="${-ex}" cy="${ey}" r="${er}" fill="${col}"/>`+
+         `<circle cx="${ex}" cy="${ey}" r="${er}" fill="${col}"/>`+
+         `<circle cx="${-ex-er*0.3}" cy="${ey-er*0.4}" r="${er*0.36}" fill="#fff" opacity=".8"/>`+
+         `<circle cx="${ex-er*0.3}" cy="${ey-er*0.4}" r="${er*0.36}" fill="#fff" opacity=".8"/>`;
+}
+function mouth(r, col, kind){
+  const y = r*0.3;
+  if(kind === 'smile') return `<path d="M ${-r*0.22} ${y} q ${r*0.22} ${r*0.26} ${r*0.44} 0" stroke="${col}" stroke-width="${Math.max(1.4,r*0.075)}" fill="none" stroke-linecap="round"/>`;
+  if(kind === 'flat')  return `<line x1="${-r*0.18}" y1="${y}" x2="${r*0.18}" y2="${y}" stroke="${col}" stroke-width="${Math.max(1.4,r*0.075)}" stroke-linecap="round"/>`;
+  if(kind === 'oh')    return `<circle cx="0" cy="${y}" r="${r*0.1}" fill="none" stroke="${col}" stroke-width="${Math.max(1.3,r*0.07)}"/>`;
+  if(kind === 'sad')   return `<path d="M ${-r*0.22} ${y+r*0.12} q ${r*0.22} ${-r*0.26} ${r*0.44} 0" stroke="${col}" stroke-width="${Math.max(1.4,r*0.075)}" fill="none" stroke-linecap="round"/>`;
+  return '';
+}
+
+/* ============================================================
+   19 种生物形态（局部坐标，中心 0,0，尺度 r）
+   ============================================================ */
+let _uid = 0;
+function bodyOf(kind, r, col, mood){
+  const dk = shade(col, -0.34), lt = shade(col, 0.3);
+  const uid = 'cg' + (++_uid);
+  const g = `<radialGradient id="${uid}" cx="35%" cy="28%">
+      <stop offset="0%" stop-color="${lt}"/><stop offset="100%" stop-color="${col}"/></radialGradient>`;
+  const defs = `<defs>${g}</defs>`;
+  const F = 'url(#' + uid + ')';
+  const E = eyes(r, '#4A3228', mood);
+  const M = mouth(r, '#4A3228', 'smile');
+  const base = (extra, w, h, yOff) =>
+    defs + `<g${' transform="translate(0,'+(yOff||0)+')"'}>` + extra + `</g>`;
+
+  switch(kind){
+    case 'octo': {
+      let t = '';
+      for(let i=0;i<6;i++){
+        const a = -1.15 + i*0.46;
+        const x1 = Math.sin(a)*r*0.72, y1 = r*0.55;
+        t += `<path d="M ${x1*0.6} ${y1} q ${x1*0.7} ${r*0.62} ${x1*0.35} ${r*0.9}" stroke="${col}" stroke-width="${r*0.16}" fill="none" stroke-linecap="round" opacity=".92"/>`;
+      }
+      return base(t +
+        `<ellipse cx="0" cy="${-r*0.06}" rx="${r*0.86}" ry="${r*0.9}" fill="${F}"/>`+
+        `<ellipse cx="${-r*0.3}" cy="${-r*0.42}" rx="${r*0.19}" ry="${r*0.13}" fill="#fff" opacity=".2"/>`+
+        E + M);
+    }
+    case 'whale': {
+      return base(
+        `<path d="M ${r*0.52} ${-r*0.3} q ${r*0.6} ${-r*0.4} ${r*0.78} ${-r*0.06} q ${-r*0.28} ${r*0.34} ${-r*0.78} ${r*0.2} z" fill="${dk}"/>`+
+        `<ellipse cx="0" cy="0" rx="${r*0.92}" ry="${r*0.62}" fill="${F}"/>`+
+        `<path d="M ${-r*0.1} ${-r*0.6} q ${r*0.1} ${-r*0.5} ${r*0.06} ${-r*0.72}" stroke="${lt}" stroke-width="${r*0.09}" fill="none" stroke-linecap="round" opacity=".6"/>`+
+        `<circle cx="${-r*0.62}" cy="${-r*0.62}" r="${r*0.07}" fill="${lt}" opacity=".55"/>`+
+        `<circle cx="${-r*0.4}" cy="${-r*0.82}" r="${r*0.05}" fill="${lt}" opacity=".45"/>`+
+        `<ellipse cx="${-r*0.42}" cy="${r*0.62}" rx="${r*0.3}" ry="${r*0.14}" fill="${dk}" opacity=".8"/>`+
+        `<g transform="translate(${-r*0.34},0)">`+E+mouth(r*0.9,'#4A3228','oh')+`</g>`
+      );
+    }
+    case 'spiral': { // 蜗牛 / 海螺
+      return base(
+        `<ellipse cx="${r*0.44}" cy="${r*0.5}" rx="${r*0.52}" ry="${r*0.24}" fill="${dk}"/>`+
+        `<circle cx="${r*0.6}" cy="${r*0.34}" r="${r*0.1}" fill="${dk}"/>`+
+        `<path d="M ${-r*0.42} ${-r*0.62} q ${-r*0.34} ${-r*0.5} ${-r*0.02} ${-r*0.62}" stroke="${dk}" stroke-width="${r*0.07}" fill="none" stroke-linecap="round"/>`+
+        `<path d="M ${-r*0.08} ${-r*0.68} q ${r*0.32} ${-r*0.46} ${r*0.6} ${-r*0.44}" stroke="${dk}" stroke-width="${r*0.07}" fill="none" stroke-linecap="round"/>`+
+        `<circle cx="${r*0.06}" cy="${-r*0.02}" r="${r*0.7}" fill="${F}"/>`+
+        `<path d="M ${r*0.5} ${-r*0.34} a ${r*0.5} ${r*0.5} 0 1 0 ${-r*0.3} ${r*0.62} a ${r*0.3} ${r*0.3} 0 1 1 ${r*0.28} ${-r*0.36}" fill="none" stroke="${dk}" stroke-width="${r*0.09}" stroke-linecap="round" opacity=".8"/>`+
+        `<circle cx="${r*0.06}" cy="${-r*0.02}" r="${r*0.13}" fill="${dk}" opacity=".6"/>`+
+        `<circle cx="${-r*0.2}" cy="${-r*0.28}" r="${r*0.16}" fill="#fff" opacity=".2"/>`+
+        `<g transform="translate(${r*0.06},${-r*0.06}) scale(.62)">`+eyes(r,'#4A3228',mood)+`</g>`
+      );
+    }
+    case 'log': { // 浮木
+      return base(
+        `<rect x="${-r*0.96}" y="${-r*0.44}" width="${r*1.9}" height="${r*0.88}" rx="${r*0.42}" fill="${F}"/>`+
+        `<ellipse cx="${r*0.68}" cy="0" rx="${r*0.24}" ry="${r*0.44}" fill="${dk}" opacity=".5"/>`+
+        `<ellipse cx="${r*0.68}" cy="0" rx="${r*0.13}" ry="${r*0.24}" fill="${lt}" opacity=".35"/>`+
+        `<ellipse cx="${r*0.68}" cy="0" rx="${r*0.05}" ry="${r*0.1}" fill="${dk}" opacity=".4"/>`+
+        `<line x1="${-r*0.44}" y1="${-r*0.26}" x2="${-r*0.06}" y2="${-r*0.28}" stroke="${dk}" stroke-width="${r*0.06}" opacity=".5" stroke-linecap="round"/>`+
+        `<line x1="${-r*0.46}" y1="${r*0.14}" x2="${-r*0.08}" y2="${r*0.12}" stroke="${dk}" stroke-width="${r*0.06}" opacity=".5" stroke-linecap="round"/>`+
+        `<g transform="translate(${-r*0.4},0)">`+eyes(r*0.6,'#4A3228',mood)+mouth(r*0.6,'#4A3228','flat')+`</g>`
+      );
+    }
+    case 'wave': { // 水面 / 深海
+      return base(
+        `<path d="M ${-r*0.86} ${r*0.16} a ${r*0.86} ${r*0.72} 0 0 1 ${r*1.72} 0 q ${-r*0.22} ${r*0.5} ${-r*0.44} ${r*0.16} q ${-r*0.22} ${r*0.42} ${-r*0.44} ${r*0.12} q ${-r*0.22} ${r*0.4} ${-r*0.44} ${r*0.1} q ${-r*0.22} ${r*0.38} ${-r*0.4} ${r*0.06} Z" fill="${F}"/>`+
+        `<path d="M ${-r*0.58} ${r*0.06} a ${r*0.5} ${r*0.42} 0 0 1 ${r*0.5} ${-r*0.24}" stroke="#fff" stroke-width="${r*0.08}" fill="none" opacity=".28" stroke-linecap="round"/>`+
+        `<g transform="translate(0,${-r*0.14})">`+eyes(r*0.86,'#4A3228',mood)+mouth(r*0.86,'#4A3228','smile')+`</g>`
+      );
+    }
+    case 'otter': {
+      return base(
+        `<path d="M ${-r*0.86} ${r*0.34} q ${-r*0.5} ${r*0.5} ${-r*0.06} ${r*0.5} q ${-r*0.4} ${r*0.36} ${r*0.1} ${r*0.36}" stroke="${dk}" stroke-width="${r*0.2}" fill="none" stroke-linecap="round"/>`+
+        `<ellipse cx="0" cy="${r*0.1}" rx="${r*0.82}" ry="${r*0.72}" fill="${F}"/>`+
+        `<circle cx="${-r*0.56}" cy="${-r*0.44}" r="${r*0.22}" fill="${col}"/><circle cx="${-r*0.56}" cy="${-r*0.44}" r="${r*0.11}" fill="${lt}" opacity=".65"/>`+
+        `<circle cx="${r*0.56}" cy="${-r*0.44}" r="${r*0.22}" fill="${col}"/><circle cx="${r*0.56}" cy="${-r*0.44}" r="${r*0.11}" fill="${lt}" opacity=".65"/>`+
+        `<ellipse cx="0" cy="${r*0.42}" rx="${r*0.34}" ry="${r*0.26}" fill="${lt}" opacity=".55"/>`+
+        `<ellipse cx="-3" cy="${r*0.4}" rx="${r*0.08}" ry="${r*0.06}" fill="#4A3228"/>`+
+        `<ellipse cx="3" cy="${r*0.4}" rx="${r*0.08}" ry="${r*0.06}" fill="#4A3228"/>`+
+        `<g transform="translate(0,${-r*0.2})">` + eyes(r*0.94, '#4A3228', mood) + mouth(r*0.94, '#4A3228','smile') + `</g>`
+      );
+    }
+    case 'cat': {
+      return base(
+        `<path d="M ${r*0.72} ${r*0.3} q ${r*0.66} ${-r*0.12} ${r*0.5} ${-r*0.66}" stroke="${dk}" stroke-width="${r*0.17}" fill="none" stroke-linecap="round"/>`+
+        `<ellipse cx="0" cy="${r*0.22}" rx="${r*0.66}" ry="${r*0.66}" fill="${F}"/>`+
+        `<path d="M ${-r*0.72} ${-r*0.42} l ${r*0.06} ${-r*0.56} l ${r*0.48} ${r*0.32} z" fill="${col}"/>`+
+        `<path d="M ${r*0.72} ${-r*0.42} l ${-r*0.06} ${-r*0.56} l ${-r*0.48} ${r*0.32} z" fill="${col}"/>`+
+        `<path d="M ${-r*0.58} ${-r*0.52} l ${r*0.03} ${-r*0.3} l ${r*0.26} ${r*0.17} z" fill="${lt}" opacity=".6"/>`+
+        `<path d="M ${r*0.58} ${-r*0.52} l ${-r*0.03} ${-r*0.3} l ${-r*0.26} ${r*0.17} z" fill="${lt}" opacity=".6"/>`+
+        `<g transform="translate(0,${-r*0.16})">`+eyes(r*0.9,'#4A3228',mood)+mouth(r*0.9,'#4A3228','smile')+`</g>`
+      );
+    }
+    case 'rodent': {
+      return base(
+        `<circle cx="${-r*0.56}" cy="${-r*0.62}" r="${r*0.24}" fill="${col}"/><circle cx="${-r*0.56}" cy="${-r*0.62}" r="${r*0.12}" fill="${dk}" opacity=".55"/>`+
+        `<circle cx="${r*0.56}" cy="${-r*0.62}" r="${r*0.24}" fill="${col}"/><circle cx="${r*0.56}" cy="${-r*0.62}" r="${r*0.12}" fill="${dk}" opacity=".55"/>`+
+        `<ellipse cx="0" cy="${r*0.06}" rx="${r*0.86}" ry="${r*0.8}" fill="${F}"/>`+
+        `<ellipse cx="${-r*0.5}" cy="${r*0.2}" rx="${r*0.24}" ry="${r*0.2}" fill="${lt}" opacity=".45"/>`+
+        `<ellipse cx="${r*0.5}" cy="${r*0.2}" rx="${r*0.24}" ry="${r*0.2}" fill="${lt}" opacity=".45"/>`+
+        `<g transform="translate(0,${-r*0.12})">`+eyes(r*0.92,'#4A3228',mood)+mouth(r*0.92,'#4A3228','smile')+`</g>`
+      );
+    }
+    case 'bear': {
+      return base(
+        `<path d="M ${-r*0.8} ${r*0.1} q ${-r*0.7} ${r*0.44} ${-r*0.1} ${r*0.52} q ${-r*0.6} ${r*0.3} ${0.05} ${r*0.34} q ${r*0.6} ${-r*0.02} ${r*0.85}-${r*0.4}" fill="${dk}" stroke="${dk}" stroke-width="${r*0.14}" stroke-linejoin="round"/>`+
+        `<circle cx="${-r*0.58}" cy="${-r*0.52}" r="${r*0.26}" fill="${col}"/>`+
+        `<circle cx="${r*0.58}" cy="${-r*0.52}" r="${r*0.26}" fill="${col}"/>`+
+        `<ellipse cx="0" cy="0" rx="${r*0.84}" ry="${r*0.82}" fill="${F}"/>`+
+        `<ellipse cx="-2" cy="${r*0.36}" rx="${r*0.42}" ry="${r*0.3}" fill="${lt}" opacity=".5"/>`+
+        `<ellipse cx="0" cy="${r*0.28}" rx="${r*0.09}" ry="${r*0.07}" fill="#4A3228"/>`+
+        `<g transform="translate(0,${-r*0.1})">`+eyes(r*0.92,'#4A3228',mood)+`</g>`
+      );
+    }
+    case 'penguin': {
+      return base(
+        `<ellipse cx="0" cy="0" rx="${r*0.78}" ry="${r*0.92}" fill="${F}"/>`+
+        `<ellipse cx="0" cy="${r*0.16}" rx="${r*0.5}" ry="${r*0.66}" fill="#F4F7FF" opacity=".9"/>`+
+        `<ellipse cx="${-r*0.76}" cy="${r*0.06}" rx="${r*0.2}" ry="${r*0.44}" fill="${dk}" transform="rotate(-14 ${-r*0.76} ${r*0.06})"/>`+
+        `<ellipse cx="${r*0.76}" cy="${r*0.06}" rx="${r*0.2}" ry="${r*0.44}" fill="${dk}" transform="rotate(14 ${r*0.76} ${r*0.06})"/>`+
+        `<path d="M 0 ${-r*0.02} l ${r*0.3} ${r*0.14} l ${-r*0.3} ${r*0.14} z" fill="#FFC24B"/>`+
+        `<g transform="translate(0,${-r*0.3})">`+eyes(r*0.78,'#4A3228',mood)+`</g>`
+      );
+    }
+    case 'fish': {
+      return base(
+        `<path d="M ${r*0.68} ${-r*0.06} q ${r*0.52} ${-r*0.46} ${r*0.62} ${-r*0.02} q ${-r*0.1} ${r*0.44} ${-r*0.62} ${r*0.04} z" fill="${dk}"/>`+
+        `<ellipse cx="0" cy="0" rx="${r*0.86}" ry="${r*0.6}" fill="${F}"/>`+
+        `<path d="M ${-r*0.1} ${-r*0.56} q ${r*0.22} ${-r*0.4} ${r*0.36} ${-r*0.06} z" fill="${dk}" opacity=".85"/>`+
+        `<path d="M ${-r*0.2} ${r*0.5} q ${r*0.2} ${r*0.36} ${r*0.34} ${r*0.04} z" fill="${dk}" opacity=".7"/>`+
+        `<g transform="translate(${-r*0.3},0)">`+eyes(r*0.8,'#4A3228',mood)+mouth(r*0.8,'#4A3228','oh')+`</g>`
+      );
+    }
+    case 'bug': {
+      return base(
+        `<ellipse cx="${-r*0.62}" cy="${-r*0.3}" rx="${r*0.52}" ry="${r*0.34}" fill="${lt}" opacity=".5" transform="rotate(-24 ${-r*0.62} ${-r*0.3})"/>`+
+        `<ellipse cx="${r*0.62}" cy="${-r*0.3}" rx="${r*0.52}" ry="${r*0.34}" fill="${lt}" opacity=".5" transform="rotate(24 ${r*0.62} ${-r*0.3})"/>`+
+        `<path d="M ${-r*0.28} ${-r*0.7} q ${-r*0.24} ${-r*0.42} ${-r*0.5} ${-r*0.5}" stroke="${dk}" stroke-width="${r*0.07}" fill="none" stroke-linecap="round"/>`+
+        `<path d="M ${r*0.28} ${-r*0.7} q ${r*0.24} ${-r*0.42} ${r*0.5} ${-r*0.5}" stroke="${dk}" stroke-width="${r*0.07}" fill="none" stroke-linecap="round"/>`+
+        `<circle cx="${-r*0.52}" cy="${-r*1.22}" r="${r*0.08}" fill="${dk}"/><circle cx="${r*0.52}" cy="${-r*1.22}" r="${r*0.08}" fill="${dk}"/>`+
+        `<ellipse cx="0" cy="${r*0.08}" rx="${r*0.42}" ry="${r*0.72}" fill="${F}"/>`+
+        `<g transform="translate(0,${-r*0.24})">`+eyes(r*0.72,'#4A3228',mood)+`</g>`
+      );
+    }
+    case 'dog': {
+      return base(
+        `<path d="M ${r*0.7} ${r*0.2} q ${r*0.42} ${-r*0.36} ${r*0.2} ${-r*0.6}" stroke="${dk}" stroke-width="${r*0.18}" fill="none" stroke-linecap="round"/>`+
+        `<ellipse cx="0" cy="${r*0.2}" rx="${r*0.7}" ry="${r*0.68}" fill="${F}"/>`+
+        `<ellipse cx="${-r*0.74}" cy="${-r*0.2}" rx="${r*0.26}" ry="${r*0.42}" fill="${dk}" transform="rotate(16 ${-r*0.74} ${-r*0.2})"/>`+
+        `<ellipse cx="${r*0.74}" cy="${-r*0.2}" rx="${r*0.26}" ry="${r*0.42}" fill="${dk}" transform="rotate(-16 ${r*0.74} ${-r*0.2})"/>`+
+        `<ellipse cx="0" cy="${r*0.32}" rx="${r*0.3}" ry="${r*0.22}" fill="${lt}" opacity=".55"/>`+
+        `<ellipse cx="0" cy="${r*0.24}" rx="${r*0.1}" ry="${r*0.08}" fill="#4A3228"/>`+
+        `<ellipse cx="0" cy="${r*0.46}" rx="${r*0.09}" ry="${r*0.11}" fill="${C_YOU}" opacity=".85"/>`+
+        `<g transform="translate(0,${-r*0.14})">`+eyes(r*0.9,'#4A3228',mood)+`</g>`
+      );
+    }
+    case 'bird': {
+      return base(
+        `<ellipse cx="0" cy="${r*0.1}" rx="${r*0.66}" ry="${r*0.72}" fill="${F}"/>`+
+        `<path d="M ${-r*0.6} ${r*0.24} q ${-r*0.44} ${r*0.2} ${-r*0.18} ${r*0.34} q ${-r*0.02} ${-r*0.16} ${r*0.18} ${-r*0.34}" fill="${dk}"/>`+
+        `<path d="M ${-r*0.1} ${-r*0.1} q ${-r*0.5} ${r*0.1} ${-r*0.2} ${r*0.44} q ${r*0.36} ${-r*0.14} ${r*0.5}-${r*0.2}" fill="${dk}" opacity=".9"/>`+
+        `<path d="M ${r*0.6} ${-r*0.04} l ${r*0.42} ${r*0.12} l ${-r*0.42} ${r*0.14} z" fill="#FFC24B"/>`+
+        `<g transform="translate(${r*0.06},${-r*0.2})">`+eyes(r*0.72,'#4A3228',mood)+`</g>`
+      );
+    }
+    case 'planet': {
+      return base(
+        `<ellipse cx="0" cy="${r*0.12}" rx="${r*1.2}" ry="${r*0.34}" fill="none" stroke="${lt}" stroke-width="${r*0.1}" opacity=".75" transform="rotate(-16)"/>`+
+        `<circle cx="0" cy="0" r="${r*0.82}" fill="${F}"/>`+
+        `<ellipse cx="${-r*0.28}" cy="${-r*0.24}" rx="${r*0.24}" ry="${r*0.16}" fill="${dk}" opacity=".35" transform="rotate(-22 ${-r*0.28} ${-r*0.24})"/>`+
+        `<ellipse cx="${r*0.3}" cy="${r*0.3}" rx="${r*0.18}" ry="${r*0.11}" fill="${dk}" opacity=".3" transform="rotate(14 ${r*0.3} ${r*0.3})"/>`+
+        `<g transform="translate(0,${-r*0.08})">`+eyes(r*0.8,'#4A3228',mood)+mouth(r*0.8,'#4A3228','smile')+`</g>`
+      );
+    }
+    case 'train': { // 地铁车厢
+      return base(
+        `<rect x="${-r*1.04}" y="${-r*0.66}" width="${r*2.08}" height="${r*1.32}" rx="${r*0.42}" fill="${F}"/>`+
+        `<rect x="${-r*1.0}" y="${-r*0.6}" width="${r*2.0}" height="${r*0.19}" rx="${r*0.09}" fill="${lt}" opacity=".4"/>`+
+        `<rect x="${-r*0.84}" y="${-r*0.3}" width="${r*0.6}" height="${r*0.42}" rx="${r*0.1}" fill="${lt}" opacity=".62"/>`+
+        `<rect x="${r*0.24}" y="${-r*0.3}" width="${r*0.6}" height="${r*0.42}" rx="${r*0.1}" fill="${lt}" opacity=".62"/>`+
+        `<line x1="${-r*0.9}" y1="${r*0.03}" x2="${r*0.9}" y2="${r*0.03}" stroke="${dk}" stroke-width="${r*0.06}" opacity=".55"/>`+
+        `<circle cx="${-r*0.82}" cy="${r*0.4}" r="${r*0.11}" fill="#FFE6A8" opacity=".9"/>`+
+        `<circle cx="${r*0.82}" cy="${r*0.4}" r="${r*0.11}" fill="#FFE6A8" opacity=".9"/>`+
+        `<rect x="${-r*0.5}" y="${r*0.44}" width="${r*1}" height="${r*0.16}" rx="${r*0.08}" fill="${dk}" opacity=".45"/>`+
+        `<g transform="translate(0,${r*0.32}) scale(.5)">`+eyes(r,'#4A3228',mood)+`</g>`
+      );
+    }
+    case 'cubeobj': {
+      return base(
+        `<rect x="${-r*0.84}" y="${-r*0.94}" width="${r*1.68}" height="${r*1.88}" rx="${r*0.3}" fill="${F}"/>`+
+        `<rect x="${-r*0.84}" y="${-r*0.94}" width="${r*1.68}" height="${r*0.2}" rx="${r*0.1}" fill="${lt}" opacity=".45"/>`+
+        `<line x1="${-r*0.84}" y1="${r*0.02}" x2="${r*0.84}" y2="${r*0.02}" stroke="${dk}" stroke-width="${r*0.07}" opacity=".55"/>`+
+        `<circle cx="${r*0.6}" cy="${r*0.62}" r="${r*0.11}" fill="${lt}" opacity=".9"/>`+
+        `<g transform="translate(0,${-r*0.5})">`+eyes(r*0.62,'#4A3228',mood)+`</g>`+
+        `<g transform="translate(0,${r*0.42})">`+mouth(r*0.62,'#4A3228','flat')+`</g>`
+      );
+    }
+    case 'ghost': {
+      return base(
+        `<path d="M ${-r*0.78} ${r*0.72} V ${-r*0.06} a ${r*0.78} ${r*0.78} 0 0 1 ${r*1.56} 0 V ${r*0.72} q ${-r*0.26} ${-r*0.3} ${-r*0.52} 0 q ${-r*0.26} ${-r*0.3} ${-r*0.52} 0 q ${-r*0.26} ${-r*0.3} ${-r*0.52} 0 z" fill="${F}"/>`+
+        `<ellipse cx="${-r*0.28}" cy="${-r*0.36}" rx="${r*0.16}" ry="${r*0.1}" fill="#fff" opacity=".22"/>`+
+        `<g transform="translate(0,${-r*0.1})">`+eyes(r*0.86,'#1A2340',mood)+`</g>`
+      );
+    }
+    case 'plant': { // 仙人掌 / 含羞草
+      let sp = '';
+      for(let i=0;i<7;i++){
+        const y = -r*0.76 + i*r*0.25;
+        sp += `<line x1="${(-r*0.34).toFixed(1)}" y1="${y.toFixed(1)}" x2="${(-r*0.52).toFixed(1)}" y2="${(y-r*0.1).toFixed(1)}" stroke="${lt}" stroke-width="${r*0.035}" opacity=".6" stroke-linecap="round"/>`;
+        sp += `<line x1="${(r*0.34).toFixed(1)}" y1="${y.toFixed(1)}" x2="${(r*0.52).toFixed(1)}" y2="${(y-r*0.1).toFixed(1)}" stroke="${lt}" stroke-width="${r*0.035}" opacity=".6" stroke-linecap="round"/>`;
+      }
+      return base(
+        `<rect x="${-r*0.74}" y="${-r*0.32}" width="${r*0.42}" height="${r*0.26}" rx="${r*0.13}" fill="${col}"/>`+
+        `<rect x="${-r*0.74}" y="${-r*0.74}" width="${r*0.28}" height="${r*0.58}" rx="${r*0.14}" fill="${col}"/>`+
+        `<rect x="${r*0.32}" y="${-r*0.08}" width="${r*0.42}" height="${r*0.26}" rx="${r*0.13}" fill="${col}"/>`+
+        `<rect x="${r*0.46}" y="${-r*0.5}" width="${r*0.28}" height="${r*0.58}" rx="${r*0.14}" fill="${col}"/>`+
+        `<rect x="${-r*0.34}" y="${-r*0.9}" width="${r*0.68}" height="${r*1.8}" rx="${r*0.34}" fill="${F}"/>`+
+        `<rect x="${-r*0.19}" y="${-r*0.82}" width="${r*0.11}" height="${r*1.5}" rx="${r*0.055}" fill="${lt}" opacity=".28"/>`+
+        sp+
+        `<g transform="translate(0,${-r*0.34})">`+eyes(r*0.62,'#4A3228',mood)+mouth(r*0.62,'#4A3228','flat')+`</g>`
+      );
+    }
+    case 'blobobj': {
+      return base(
+        `<circle cx="0" cy="0" r="${r*0.86}" fill="${F}"/>`+
+        `<ellipse cx="${-r*0.3}" cy="${-r*0.36}" rx="${r*0.26}" ry="${r*0.17}" fill="#fff" opacity=".26" transform="rotate(-28 ${-r*0.3} ${-r*0.36})"/>`+
+        `<ellipse cx="${r*0.3}" cy="${r*0.42}" rx="${r*0.2}" ry="${r*0.12}" fill="${dk}" opacity=".3"/>`+
+        `<g transform="translate(0,${-r*0.06})">`+eyes(r*0.84,'#4A3228',mood)+mouth(r*0.84,'#4A3228','smile')+`</g>`
+      );
+    }
+    default: {
+      return base(
+        `<ellipse cx="0" cy="0" rx="${r*0.9}" ry="${r*0.84}" fill="${F}"/>`+
+        `<ellipse cx="${-r*0.28}" cy="${-r*0.34}" rx="${r*0.24}" ry="${r*0.15}" fill="#fff" opacity=".22" transform="rotate(-26 ${-r*0.28} ${-r*0.34})"/>`+
+        `<g transform="translate(0,${-r*0.04})">`+eyes(r*0.9,'#4A3228',mood)+mouth(r*0.9,'#4A3228','smile')+`</g>`
+      );
+    }
+  }
+}
+
+/* ============================================================
+   场景背景（5 种）
+   ============================================================ */
+const SCENE_BY_L = {1:5, 2:4, 3:3, 4:2, 5:1};
+
+function sceneBg(sc, w, h, seed){
+  const rnd = mulberry(seed);
+  let bg='', deco='';
+  if(sc === 1){ // 暖光浅海
+    bg = `<linearGradient id="scG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EFF8F4"/><stop offset="55%" stop-color="#FCE8D0"/><stop offset="100%" stop-color="#F6D3B0"/></linearGradient>`;
+    deco += `<path d="M ${w*0.22} 0 L ${w*0.40} ${h} L ${w*0.04} ${h} L ${w*0.04} 0 Z" fill="#FFFDF4" opacity=".40"/>`;
+    deco += `<path d="M ${w*0.62} 0 L ${w*0.84} ${h} L ${w*0.50} ${h} L ${w*0.42} 0 Z" fill="#FFFDF4" opacity=".28"/>`;
+    deco += `<path d="M ${w*0.47} 0 L ${w*0.56} ${h} L ${w*0.40} ${h} L ${w*0.36} 0 Z" fill="#FFFDF4" opacity=".20"/>`;
+    for(let i=0;i<22;i++){
+      const x=rnd()*w, y=rnd()*h, r=2+rnd()*5;
+      deco += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="none" stroke="#D79A6A" stroke-width="1.2" opacity="${(0.10+rnd()*0.20).toFixed(2)}"/>`;
+    }
+    for(let i=0;i<11;i++){
+      const x = rnd()*w, hh = 22+rnd()*46;
+      deco += `<path d="M ${x.toFixed(1)} ${h} q ${(rnd()*22-11).toFixed(1)} ${-hh*0.6} ${(rnd()*16-8).toFixed(1)} ${-hh}" stroke="#8FAE6A" stroke-width="${(2+rnd()*3).toFixed(1)}" fill="none" opacity="${(0.22+rnd()*0.18).toFixed(2)}" stroke-linecap="round"/>`;
+    }
+  } else if(sc === 2){ // 金色森林
+    bg = `<linearGradient id="scG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFAE0"/><stop offset="52%" stop-color="#F9E6B2"/><stop offset="100%" stop-color="#EED08F"/></linearGradient>`;
+    deco += `<circle cx="${w*0.8}" cy="${h*0.26}" r="${h*0.17}" fill="#FFD79A" opacity=".40"/>`;
+    deco += `<circle cx="${w*0.8}" cy="${h*0.26}" r="${h*0.1}" fill="#FFF3CC" opacity=".58"/>`;
+    for(let i=0;i<4;i++){
+      const x = rnd()*w, tw = 5+rnd()*6;
+      deco += `<rect x="${x.toFixed(1)}" y="0" width="${tw.toFixed(1)}" height="${h}" fill="#AD8158" opacity="${(0.07+rnd()*0.05).toFixed(2)}"/>`;
+    }
+    for(let i=0;i<20;i++){
+      const x=rnd()*w, y=h*(0.06+rnd()*0.82), s=0.8+rnd()*1.1;
+      deco += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(13*s).toFixed(1)}" ry="${(6*s).toFixed(1)}" fill="#9BBB74" opacity="${(0.12+rnd()*0.16).toFixed(2)}" transform="rotate(${(rnd()*360).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+    }
+  } else if(sc === 3){ // 粉霞湖面
+    bg = `<linearGradient id="scG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF5ED"/><stop offset="50%" stop-color="#FBE0DC"/><stop offset="100%" stop-color="#F5CBD0"/></linearGradient>`;
+    deco += `<circle cx="${w*0.18}" cy="${h*0.19}" r="${h*0.1}" fill="#FFFDF4" opacity=".85"/>`;
+    deco += `<circle cx="${w*0.18}" cy="${h*0.19}" r="${h*0.155}" fill="#FFD9C9" opacity=".34"/>`;
+    for(let i=0;i<9;i++){
+      const y=h*0.56+i*(h*0.048);
+      deco += `<path d="M 0 ${y.toFixed(1)} q ${w*0.25} ${(-6-i*1.4).toFixed(1)} ${w*0.5} 0 q ${w*0.25} ${(6+i*1.4).toFixed(1)} ${w*0.5} 0" stroke="#DE9FA8" stroke-width="${(1.5-i*0.08).toFixed(2)}" fill="none" opacity="${(0.26-i*0.018).toFixed(2)}"/>`;
+    }
+    for(let i=0;i<8;i++){
+      const x=rnd()*w, hh=26+rnd()*44;
+      deco += `<path d="M ${x.toFixed(1)} ${h} q ${(rnd()*14-7).toFixed(1)} ${-hh*0.55} ${(rnd()*10-5).toFixed(1)} ${-hh}" stroke="#9CBE7C" stroke-width="${(1.6+rnd()*1.6).toFixed(1)}" fill="none" opacity="${(0.26+rnd()*0.2).toFixed(2)}" stroke-linecap="round"/>`;
+    }
+  } else if(sc === 4){ // 黄昏城市
+    bg = `<linearGradient id="scG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE7C9"/><stop offset="46%" stop-color="#F6C39A"/><stop offset="100%" stop-color="#E9A279"/></linearGradient>`;
+    for(let i=0;i<40;i++){
+      deco += `<circle cx="${(rnd()*w).toFixed(1)}" cy="${(rnd()*h*0.55).toFixed(1)}" r="${(0.8+rnd()*1.4).toFixed(1)}" fill="#FFF8E6" opacity="${(0.35+rnd()*0.45).toFixed(2)}"/>`;
+    }
+    deco += `<circle cx="${w*0.84}" cy="${h*0.18}" r="${h*0.075}" fill="#FFF3D2" opacity=".62"/>`;
+    let bx = -14;
+    while(bx < w){
+      const bw = 24+rnd()*40, bh = h*(0.20+rnd()*0.34);
+      deco += `<rect x="${bx.toFixed(1)}" y="${(h-bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="#C99675" opacity=".20"/>`;
+      for(let wy=0; wy<4; wy++) for(let wx=0; wx<3; wx++){
+        if(rnd()>0.4) deco += `<rect x="${(bx+5+wx*(bw/3)).toFixed(1)}" y="${(h-bh+9+wy*13).toFixed(1)}" width="4.5" height="6" rx="1" fill="#FFEDB8" opacity="${(0.55+rnd()*0.4).toFixed(2)}"/>`;
+      }
+      bx += bw + 4 + rnd()*6;
+    }
+  } else { // 暖星云
+    bg = `<linearGradient id="scG" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#FAF1FF"/><stop offset="100%" stop-color="#EDD6E6"/></linearGradient>`;
+    for(let i=0;i<70;i++){
+      deco += `<circle cx="${(rnd()*w).toFixed(1)}" cy="${(rnd()*h).toFixed(1)}" r="${(0.6+rnd()*1.7).toFixed(1)}" fill="#FFFDF7" opacity="${(0.5+rnd()*0.45).toFixed(2)}"/>`;
+    }
+    for(let i=0;i<3;i++){
+      const x=rnd()*w, y=rnd()*h*0.65, r=16+rnd()*34;
+      deco += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="#C9A2DE" opacity=".20"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r*0.5).toFixed(1)}" fill="#F2A8B6" opacity=".22"/>`;
+    }
+    deco += `<circle cx="${w*0.85}" cy="${h*0.2}" r="${h*0.11}" fill="#E4C3B0" opacity=".55"/>`;
+    deco += `<ellipse cx="${w*0.85}" cy="${h*0.2}" rx="${h*0.19}" ry="${h*0.055}" fill="none" stroke="#C79AA8" stroke-width="2" opacity=".40" transform="rotate(-14 ${w*0.85} ${h*0.2})"/>`;
+  }
+  return {grad:`<defs>${bg}</defs>`, deco, fill:'url(#scG)'};
+}
+
+function mulberry(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+/* ============================================================
+   连接方式（按连接密度）
+   ============================================================ */
+function connection(l, x1, x2, y, seed){
+  const mid = (x1+x2)/2, span = x2-x1;
+  if(l === 5){
+    // 三条并行的能量桥 + 亮核 + 环绕点：读作「缠在一起」
+    return `<line x1="${x1}" y1="${y-9}" x2="${x2}" y2="${y-9}" stroke="#D9754F" stroke-width="2.4" opacity=".38" stroke-linecap="round"/>`+
+      `<line x1="${x1}" y1="${y+9}" x2="${x2}" y2="${y+9}" stroke="#D9754F" stroke-width="2.4" opacity=".38" stroke-linecap="round"/>`+
+      `<line x1="${x1-2}" y1="${y}" x2="${x2+2}" y2="${y}" stroke="#D9754F" stroke-width="5.5" opacity=".62" stroke-linecap="round"/>`+
+      `<circle cx="${mid}" cy="${y}" r="6.5" fill="#FFFDF6"/>`+
+      `<circle cx="${mid}" cy="${y}" r="12.5" fill="none" stroke="#D9754F" stroke-width="1.5" opacity=".5"/>`+
+      `<circle cx="${mid-23}" cy="${y}" r="3.6" fill="${C_YOU}"/>`+
+      `<circle cx="${mid+23}" cy="${y}" r="3.6" fill="${C_TA}"/>`;
+  }
+  if(l === 4){
+    return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#D9754F" stroke-width="3.4" opacity=".62" stroke-linecap="round"/>`+
+      `<circle cx="${mid}" cy="${y}" r="5" fill="#FFFDF6"/>`+
+      `<circle cx="${mid-20}" cy="${y}" r="3.4" fill="${C_YOU}"/>`+
+      `<circle cx="${mid+20}" cy="${y}" r="3.4" fill="${C_TA}"/>`;
+  }
+  if(l === 3){
+    return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#B08A70" stroke-width="2.4" opacity=".9" stroke-linecap="round"/>`+
+      `<circle cx="${mid}" cy="${y}" r="3.8" fill="#FFFDF6"/>`;
+  }
+  if(l === 2){
+    return `<line x1="${x1}" y1="${y}" x2="${mid-17}" y2="${y}" stroke="#B99E88" stroke-width="2.2" stroke-dasharray="7 8" opacity=".85" stroke-linecap="round"/>`+
+      `<line x1="${mid+17}" y1="${y}" x2="${x2}" y2="${y}" stroke="#B99E88" stroke-width="2.2" stroke-dasharray="7 8" opacity=".85" stroke-linecap="round"/>`+
+      `<circle cx="${mid}" cy="${y}" r="3.2" fill="#DE8A62" opacity=".9"/>`;
+  }
+  return `<line x1="${x1}" y1="${y}" x2="${mid-28}" y2="${y}" stroke="#9C7E68" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>`+
+    `<line x1="${mid+28}" y1="${y}" x2="${x2}" y2="${y}" stroke="#9C7E68" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>`+
+    `<g opacity=".78"><path d="M ${mid-7} ${y-7} l 14 14 M ${mid+7} ${y-7} l -14 14" stroke="#9C7E68" stroke-width="2" stroke-linecap="round"/></g>`;
+}
+
+/* ============================================================
+   完整插画
+   ============================================================ */
+function buildArt(sp, w, h, forHero){
+  const W = w||480, H = h||300;
+  const sc = SCENE_BY_L[sp.l];
+  const sd = sp.no*37 + 11;
+  const bg = sceneBg(sc, W, H, sd);
+  const rnd = mulberry(sd);
+  const cy = H*0.55;
+  const cx1 = W*0.28, cx2 = W*0.72;
+  const r1 = Math.min(W*0.147, 72);
+  const r2 = r1*(0.85 + rnd()*0.30);
+  const mood1 = ['smile','wide','closed'][sp.p % 3];
+  const mood2 = ['smile','closed','wide'][sp.p % 3];
+  const g1 = 'gl'+sp.no+'a', g2 = 'gl'+sp.no+'b';
+  const shadow = (x,r) => `<ellipse cx="${x.toFixed(1)}" cy="${(cy+r*0.9).toFixed(1)}" rx="${(r*1.05).toFixed(1)}" ry="${(r*0.16).toFixed(1)}" fill="#A9714C" opacity=".22"/>`;
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${sp.name}插画">
+    <defs>${bg.grad}
+      <radialGradient id="${g1}"><stop offset="0%" stop-color="${C_YOU}" stop-opacity=".34"/><stop offset="52%" stop-color="${C_YOU}" stop-opacity=".11"/><stop offset="100%" stop-color="${C_YOU}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${g2}"><stop offset="0%" stop-color="${C_TA}" stop-opacity=".34"/><stop offset="52%" stop-color="${C_TA}" stop-opacity=".11"/><stop offset="100%" stop-color="${C_TA}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="vign" cx="50%" cy="46%" r="74%">
+        <stop offset="52%" stop-color="#A9714C" stop-opacity="0"/><stop offset="100%" stop-color="#A9714C" stop-opacity=".20"/>
+      </radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="${bg.fill}"/>
+    ${bg.deco}
+    <circle cx="${cx1}" cy="${cy}" r="${(r1*1.5).toFixed(1)}" fill="url(#${g1})" class="${forHero?'float':''}"/>
+    <circle cx="${cx2}" cy="${cy}" r="${(r2*1.5).toFixed(1)}" fill="url(#${g2})" class="${forHero?'float2':''}"/>
+    ${shadow(cx1, r1)}${shadow(cx2, r2)}
+    ${connection(sp.l, cx1+r1*0.92, cx2-r2*0.92, cy, sd)}
+    <g transform="translate(${cx1.toFixed(1)},${cy.toFixed(1)}) scale(${(r1/62).toFixed(4)})" class="${forHero?'float':''}">${bodyOf(sp.yk, 62, C_YOU, mood1)}</g>
+    <g transform="translate(${cx2.toFixed(1)},${cy.toFixed(1)}) scale(${(r2/62).toFixed(4)})" class="${forHero?'float2':''}">${bodyOf(sp.tk, 62, C_TA, mood2)}</g>
+    <rect width="${W}" height="${H}" fill="url(#vign)"/>
+    ${sparkles(W,H,sd)}
+  </svg>`;
+}
+function sparkles(W,H,seed){
+  const rnd = mulberry(seed+91);
+  let s = '';
+  for(let i=0;i<5;i++){
+    const x = 24+rnd()*(W-48), y = 20+rnd()*(H-40), k = 1.6+rnd()*2.2;
+    s += `<g opacity="${(0.2+rnd()*0.35).toFixed(2)}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
+      <path d="M 0 ${-k} L ${k*0.3} 0 L 0 ${k} L ${-k*0.3} 0 Z" fill="#FFFCF2"/>
+    </g>`;
+  }
+  return s;
+}
+
+/* ============================================================
+   雷达图
+   ============================================================ */
+function radarSvg(vals, labels){
+  const SW = 360, SH = 320, c = SW/2, cy = SH/2, R = 90;
+  const ax = [-Math.PI/2, 0, Math.PI/2, Math.PI];
+  const colors = ['#3FA98A','#A57BB8','#E0A03C','#E8614E'];
+  const shades = ['#2C7D69','#6B4B84','#A9741B','#C9452F'];
+  let g = '';
+  for(let ring=1; ring<=4; ring++){
+    const rr = R*ring/4;
+    const pts = ax.map(a=>`${(c+Math.cos(a)*rr).toFixed(1)},${(cy+Math.sin(a)*rr).toFixed(1)}`).join(' ');
+    g += `<polygon points="${pts}" fill="none" stroke="#D9BFA8" stroke-width="1" opacity="${ring===4?0.5:0.22}"/>`;
+  }
+  ax.forEach(a=>{
+    g += `<line x1="${c}" y1="${cy}" x2="${(c+Math.cos(a)*R).toFixed(1)}" y2="${(cy+Math.sin(a)*R).toFixed(1)}" stroke="#D9BFA8" stroke-width="1" opacity=".28"/>`;
+  });
+  const pts = vals.map((v,i)=>{
+    const rr = R*Math.max(0.05, Math.min(1, v/100));
+    return {x:c+Math.cos(ax[i])*rr, y:cy+Math.sin(ax[i])*rr};
+  });
+  const poly = pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  let dots = '', lbl = '';
+  const LR = R + 16;
+  pts.forEach((p,i)=>{
+    dots += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.4" fill="${colors[i]}" stroke="#FFFDF6" stroke-width="1.8"/>`;
+    const lx = c + Math.cos(ax[i])*LR, ly = cy + Math.sin(ax[i])*LR;
+    const an = Math.cos(ax[i]) > 0.5 ? 'start' : (Math.cos(ax[i]) < -0.5 ? 'end' : 'middle');
+    lbl += `<text x="${lx.toFixed(1)}" y="${(ly+4.5).toFixed(1)}" text-anchor="${an}" font-size="12.5" font-weight="700" fill="${shades[i]}" font-family="-apple-system,BlinkMacSystemFont,PingFang SC,Microsoft YaHei,sans-serif">${labels[i]}</text>`;
+  });
+  return `<svg viewBox="0 0 ${SW} ${SH}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="四维基因雷达图">
+    <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8614E" stop-opacity=".28"/>
+      <stop offset="50%" stop-color="#E0A03C" stop-opacity=".24"/>
+      <stop offset="100%" stop-color="#A57BB8" stop-opacity=".24"/>
+    </linearGradient></defs>
+    ${g}
+    <polygon points="${poly}" fill="url(#rg)" stroke="#D9754F" stroke-width="2.2" stroke-linejoin="round"/>
+    ${dots}${lbl}
+  </svg>`;
+}
+
+/* ============================================================
+   首页英雄插画
+   ============================================================ */
+function heroArt(){
+  const W=480,H=300,c1=W*0.28,c2=W*0.72,cy=H*0.55,r1=72,r2=66;
+  let stars='';
+  for(let i=0;i<46;i++){
+    const x=18+((i*97)%(W-36)), y=14+((i*61)%(H-40)), k=0.7+((i*7)%5)*0.22;
+    stars += '<circle cx="'+x+'" cy="'+y+'" r="'+k.toFixed(1)+'" fill="#FFF8E8" opacity="'+(0.18+((i*13)%40)/100).toFixed(2)+'"/>';
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="共生体图鉴">
+    <defs>
+      <linearGradient id="hb" x1="0" y1="0" x2="0.4" y2="1">
+        <stop offset="0%" stop-color="#FFF1DA"/><stop offset="52%" stop-color="#FBDDBD"/><stop offset="100%" stop-color="#F6CBA9"/>
+      </linearGradient>
+      <radialGradient id="hg1"><stop offset="0%" stop-color="${C_YOU}" stop-opacity=".45"/><stop offset="52%" stop-color="${C_YOU}" stop-opacity=".15"/><stop offset="100%" stop-color="${C_YOU}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="hg2"><stop offset="0%" stop-color="${C_TA}" stop-opacity=".45"/><stop offset="52%" stop-color="${C_TA}" stop-opacity=".15"/><stop offset="100%" stop-color="${C_TA}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="hv" cx="50%" cy="48%" r="72%">
+        <stop offset="50%" stop-color="#A9714C" stop-opacity="0"/><stop offset="100%" stop-color="#A9714C" stop-opacity=".20"/>
+      </radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#hb)"/>
+    ${stars}
+    <ellipse cx="${W*0.5}" cy="${H*0.72}" rx="${W*0.42}" ry="${H*0.2}" fill="#E8A67E" opacity=".22"/>
+    <circle cx="${c1}" cy="${cy}" r="${r1*1.5}" fill="url(#hg1)" class="float"/>
+    <circle cx="${c2}" cy="${cy}" r="${r2*1.5}" fill="url(#hg2)" class="float2"/>
+    <ellipse cx="${c1}" cy="${cy+r1*0.9}" rx="${r1*1.05}" ry="${r1*0.16}" fill="#A9714C" opacity=".22"/>
+    <ellipse cx="${c2}" cy="${cy+r2*0.9}" rx="${r2*1.05}" ry="${r2*0.16}" fill="#A9714C" opacity=".22"/>
+    <path d="M ${c1+r1*0.9} ${cy-6} q ${(c2-r2*0.9-c1-r1*0.9)/2} -26 ${c2-r2*0.9-c1-r1*0.9} 0" stroke="#D9754F" stroke-width="2.4" fill="none" opacity=".6" stroke-linecap="round"/>
+    <path d="M ${c1+r1*0.9} ${cy+12} q ${(c2-r2*0.9-c1-r1*0.9)/2} 26 ${c2-r2*0.9-c1-r1*0.9} 0" stroke="#3FA98A" stroke-width="2" fill="none" opacity=".45" stroke-linecap="round"/>
+    <circle cx="${(c1+c2)/2}" cy="${cy+3}" r="5" fill="#D9754F"/>
+    <circle cx="${(c1+c2)/2}" cy="${cy+3}" r="11" fill="none" stroke="#D9754F" stroke-width="1.3" opacity=".45"/>
+    <g class="float"><g transform="translate(${c1},${cy}) scale(${(r1/62).toFixed(4)})">${bodyOf('octo',62,C_YOU,'smile')}</g></g>
+    <g class="float2"><g transform="translate(${c2},${cy}) scale(${(r2/62).toFixed(4)})">${bodyOf('otter',62,C_TA,'smile')}</g></g>
+    <rect width="${W}" height="${H}" fill="url(#hv)"/>
+  </svg>`;
+}
+/* ============================================================
+   状态
+   ============================================================ */
+const TOTAL = QUES.length;
+const DIM_KEYS = ['L','P','E','F'];
+const state = { i:0, ans:new Array(TOTAL).fill(null) };
+const $ = id => document.getElementById(id);
+let LAST = null;
+
+/* ============================================================
+   计分：把「连接密度」「主动势能」各切成 5 档
+   档位切点经过筛选，使 25 个格子的出现概率拉开梯度（稀有度即来源于此）
+   ============================================================ */
+const CUTS = [[0,4],[5,6],[7,8],[9,10],[11,16]];
+function bucketIdx(sum){
+  for(let i=0;i<CUTS.length;i++) if(sum>=CUTS[i][0] && sum<=CUTS[i][1]) return i;
+  return sum < CUTS[0][0] ? 0 : 4;
+}
+/* 精确概率分布：每题 3 个选项等概率（1/3），分值 0/1/2
+   生成函数 ((1+x+x^2)/3)^n 的系数即为各总分的概率 */
+function scoreDist(dim){
+  let p = [1];
+  QUES.filter(q => q.d === dim).forEach(() => {
+    const n = new Array(p.length + 2).fill(0);
+    for(let i=0;i<p.length;i++){ n[i] += p[i]; n[i+1] += p[i]; n[i+2] += p[i]; }
+    p = n;
+  });
+  const t = p.reduce((a,b)=>a+b, 0);
+  return p.map(v => v/t);
+}
+const DIST = { L:scoreDist('L'), P:scoreDist('P') };
+function bucketProb(d, k){
+  let s = 0;
+  const hi = Math.min(CUTS[k][1], d.length-1);
+  for(let i=CUTS[k][0]; i<=hi; i++) s += d[i];
+  return s;
+}
+function cellProb(l, p){ return bucketProb(DIST.L, l-1) * bucketProb(DIST.P, p-1); }
+function pctStr(pr){
+  if(pr < 0.01) return (pr*100).toFixed(2) + '%';
+  return (pr*100).toFixed(1) + '%';
+}
+function tierOf(pr){
+  if(pr >= 0.07) return {k:'n', name:'常见', cls:'rar-n'};
+  if(pr >= 0.04) return {k:'r', name:'稀见', cls:'rar-r'};
+  if(pr >= 0.015) return {k:'sr', name:'稀有', cls:'rar-sr'};
+  return {k:'k', name:'传说', cls:'rar-legend'};
+}
+
+/* ============================================================
+   图鉴存档（只写在本机浏览器，不联网）
+   ============================================================ */
+const LS_KEY = 'symbiosis_codex_v1';
+let GOT = [];
+try{ const raw = localStorage.getItem(LS_KEY); if(raw) GOT = JSON.parse(raw); }catch(e){ GOT = []; }
+if(!Array.isArray(GOT)) GOT = [];
+function saveGot(no){
+  if(GOT.indexOf(no) === -1){ GOT.push(no); try{ localStorage.setItem(LS_KEY, JSON.stringify(GOT)); }catch(e){} }
+}
+function gotCount(){ return GOT.length; }
+
+/* ============================================================
+   页面切换
+   ============================================================ */
+function go(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  $(id).classList.add('on');
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+
+/* ============================================================
+   首页
+   ============================================================ */
+function renderCodex(){
+  const box = $('codex-grid');
+  box.innerHTML = SPECIES.slice().sort((a,b)=>a.no-b.no).map(s => {
+    const got = GOT.indexOf(s.no) > -1;
+    return '<div class="cx'+(got?' got':'')+'" title="'+(got?s.name+' · '+s.sci:'未解锁')+'">'+
+      '<span class="no">'+String(s.no).padStart(2,'0')+'</span>'+
+      '<span class="mk">'+s.mk+'</span>'+
+      '<span class="nm">'+(got?s.name:'？？？')+'</span></div>';
+  }).join('');
+  $('codex-progress').textContent = '已解锁 ' + gotCount() + ' / 25';
+}
+
+/* ============================================================
+   答题页
+   ============================================================ */
+function renderQ(){
+  const q = QUES[state.i];
+  $('q-idx').textContent = state.i + 1;
+  $('q-dim').textContent = DIMS[q.d].name;
+  $('q-bar').style.width = ((state.i + 1) / TOTAL * 100) + '%';
+  $('q-title').innerHTML = '<span class="qi">'+String(state.i+1).padStart(2,'0')+'</span><span>'+q.q+'</span>';
+  const hint = $('q-hint');
+  if(q.h){ hint.textContent = q.h; hint.style.display = ''; } else { hint.textContent = ''; hint.style.display = 'none'; }
+  $('q-opts').innerHTML = q.o.map((o,idx) =>
+    '<button class="opt'+(state.ans[state.i]===idx?' sel':'')+'" data-i="'+idx+'">'+
+      '<span class="ok">'+'ABC'[idx]+'</span><span class="ot">'+o.t+'</span></button>').join('');
+  $('btn-prev').disabled = state.i === 0;
+  $('btn-next').textContent = state.i === TOTAL-1 ? '查看结果 →' : '下一题 →';
+  $('q-alert').classList.remove('show');
+  renderDots();
+}
+function renderDots(){
+  const box = $('nav-dots');
+  box.innerHTML = QUES.map((q,i) => {
+    const cls = state.ans[i]!==null ? 'done' : 'miss';
+    return '<button class="nd '+(i===state.i?'cur ':'')+cls+'" data-i="'+i+'">'+(i+1)+'</button>';
+  }).join('');
+  const done = state.ans.filter(a => a!==null).length;
+  $('dots-done').textContent = done;
+  $('dots-left').textContent = TOTAL - done;
+}
+function showAlert(tx){
+  $('q-alert-tx').textContent = tx;
+  const a = $('q-alert');
+  a.classList.remove('show');
+  void a.offsetWidth;
+  a.classList.add('show');
+}
+function pick(idx){
+  state.ans[state.i] = idx;
+  const btns = $('q-opts').querySelectorAll('.opt');
+  btns.forEach((b,i) => b.classList.toggle('sel', i === idx));
+  $('q-alert').classList.remove('show');
+  renderDots();
+}
+function jump(i){
+  state.i = Math.max(0, Math.min(TOTAL-1, i));
+  renderQ();
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+function next(){
+  if(state.ans[state.i] === null){
+    showAlert('这一题还没选。挑一个最像的就行，没有标准答案。');
+    return;
+  }
+  if(state.i < TOTAL - 1){ jump(state.i + 1); return; }
+  const miss = [];
+  state.ans.forEach((a,i) => { if(a === null) miss.push(i); });
+  if(miss.length){
+    showAlert('还有 ' + miss.length + ' 题没答（第 ' + miss.map(i=>i+1).join('、') + ' 题），先带你过去。');
+    jump(miss[0]);
+    return;
+  }
+  finish();
+}
+function prev(){ if(state.i > 0) jump(state.i - 1); }
+
+/* ============================================================
+   结果计算
+   ============================================================ */
+function compute(){
+  const raw = {L:0,P:0,E:0,F:0}, mx = {L:0,P:0,E:0,F:0};
+  QUES.forEach((q,i) => {
+    mx[q.d] += 2;
+    if(state.ans[i] !== null) raw[q.d] += q.o[state.ans[i]].s;
+  });
+  const pct = {};
+  DIM_KEYS.forEach(k => { pct[k] = Math.round(raw[k] / mx[k] * 100); });
+  const l = bucketIdx(raw.L) + 1, p = bucketIdx(raw.P) + 1;
+  const sp = SPECIES.find(s => s.l === l && s.p === p) || SPECIES[12];
+  const pr = cellProb(sp.l, sp.p);
+  return { sp, pct, raw, pr, tier:tierOf(pr) };
+}
+function dimDesc(k, v){
+  if(k === 'L'){
+    if(v >= 70) return '你们几乎长在对方的生活里：日程、情绪、废话都是共享的，一天没动静就会本能地不安。';
+    if(v >= 45) return '有稳定的联系节奏，既不是连体，也没到失联，各自还留着自己的空间。';
+    if(v >= 25) return '联系是「有事才发生」的那一种。不密，但也没断。';
+    return '你们基本各自运行，联系是偶发事件，不是默认状态。';
+  }
+  if(k === 'P'){
+    if(v >= 70) return '这段关系的油门几乎全在你脚下：消息你先发、面你先约、台阶也是你先递。';
+    if(v >= 55) return '你稍微更主动一些，但对方会接住，不是你一个人在推。';
+    if(v >= 45) return '推进力基本是双向的，谁有空谁先开口，结构是稳的。';
+    if(v >= 30) return '对方比你更常发起，你更多是在回应和接受。';
+    return '关系的推进几乎完全由 TA 完成，你是被带着走的那一个。';
+  }
+  if(k === 'E'){
+    if(v >= 70) return '你的真实感受基本都能传出去，不太需要对方猜，也不太需要演。';
+    if(v >= 45) return '大的情绪你能说出来，细小的那些还是自己消化掉了。';
+    return '你习惯把情绪收好再出场，对方看到的你，通常已经自己处理过一轮了。';
+  }
+  if(v >= 70) return '你们对「接下来」有比较清晰的共识，不需要靠猜来确认关系的位置。';
+  if(v >= 45) return '大致方向是有的，但细节还悬着——走得下去，只是看得不太远。';
+  return '「以后」这件事在你们之间基本没被认真聊过，这段关系是活在此刻的。';
+}
+
+/* ============================================================
+   结果页渲染
+   ============================================================ */
+function finish(){
+  const r = compute();
+  LAST = r;
+  const sp = r.sp;
+
+  $('res-rarity').textContent = r.tier.name + ' · 出现概率 ' + pctStr(r.pr);
+  $('res-rarity').className = 'rarity ' + r.tier.cls;
+  $('res-no').textContent = 'No.' + String(sp.no).padStart(2,'0') + ' / 25';
+  $('res-name').textContent = sp.name;
+  $('res-sci').textContent = sp.sci;
+  $('res-you').textContent = sp.yu;
+  $('res-ta').textContent = sp.ta;
+  $('res-art').innerHTML = buildArt(sp, 480, 300, false);
+  $('res-motto').textContent = sp.motto;
+  $('res-profile').textContent = sp.profile;
+
+  $('res-radar').innerHTML = radarSvg(
+    DIM_KEYS.map(k => r.pct[k]),
+    DIM_KEYS.map(k => DIMS[k].name)
+  );
+
+  $('res-dims').innerHTML = DIM_KEYS.map(k => {
+    const d = DIMS[k], v = r.pct[k];
+    return '<div class="dimbar">'+
+      '<div class="dl"><span class="dn">'+d.name+'</span><span class="dv">'+v+'</span></div>'+
+      '<div class="dt"><i class="df" data-w="'+v+'" style="background:linear-gradient(90deg,'+shade(d.color,-0.22)+','+d.color+');box-shadow:0 0 12px -2px '+d.color+'"></i></div>'+
+      '<div class="dd">'+dimDesc(k, v)+'</div></div>';
+  }).join('');
+  $('res-dims').querySelectorAll('.df').forEach(el => {
+    const w = el.getAttribute('data-w') + '%';
+    void el.offsetWidth;
+    el.style.width = w;
+  });
+
+  $('res-good').innerHTML = sp.good.map(t => '<li>'+t+'</li>').join('');
+  $('res-risk').innerHTML = sp.risk.map(t => '<li>'+t+'</li>').join('');
+  $('res-acts').innerHTML = sp.acts.map((t,i) => '<div class="act"><span class="an">'+(i+1)+'</span><span class="at">'+t+'</span></div>').join('');
+
+  saveGot(sp.no);
+  renderCodex();
+  go('pg-result');
+}
+
+/* ============================================================
+   复制结果文案
+   ============================================================ */
+function buildText(){
+  const r = LAST; if(!r) return '';
+  const sp = r.sp;
+  const L = [];
+  L.push('【共生体图鉴】我和 TA 的物种是——');
+  L.push('');
+  L.push(sp.mk + ' ' + sp.name + '（No.' + String(sp.no).padStart(2,'0') + ' / 25 · ' + r.tier.name + ' · 出现概率 ' + pctStr(r.pr) + '）');
+  L.push('学名：' + sp.sci);
+  L.push('我 = ' + sp.yu + ' ｜ TA = ' + sp.ta);
+  L.push('');
+  L.push('「' + sp.motto + '」');
+  L.push('');
+  L.push(sp.profile);
+  L.push('');
+  L.push('四维基因：' + DIM_KEYS.map(k => DIMS[k].name + ' ' + r.pct[k]).join(' / '));
+  L.push('');
+  L.push('这段关系赢在哪：' + sp.good[0]);
+  L.push('会从哪里崩：' + sp.risk[0]);
+  L.push('');
+  L.push('你俩是什么物种？去测一下 →');
+  L.push('#共生体图鉴 #我和TA是什么物种 #关系测试');
+  return L.join('\n');
+}
+function copyResult(){
+  const txt = buildText();
+  const done = () => toast('已复制，直接粘贴到小红书就行');
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    toast(ok ? '已复制，直接粘贴到小红书就行' : '复制没成功，长按选中下面这段文字手动复制');
+    if(!ok) showManual(txt);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done, fallback);
+  } else fallback();
+}
+function showManual(txt){
+  const box = document.createElement('div');
+  box.className = 'card res-card';
+  box.style.marginTop = '16px';
+  box.innerHTML = '<h3>手动复制这段</h3><p style="white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:12.5px">' +
+    txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
+  document.querySelector('.res-actions').parentNode.insertBefore(box, document.querySelector('.res-actions').nextSibling);
+}
+let toastTimer = null;
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 2600);
+}
+
+/* ============================================================
+   结果卡片导出（750×1334 竖版 PNG，纯 canvas 绘制，无外部依赖）
+   ============================================================ */
+function rr(g, x, y, w, h, r){
+  g.beginPath();
+  g.moveTo(x+r, y);
+  g.arcTo(x+w, y, x+w, y+h, r);
+  g.arcTo(x+w, y+h, x, y+h, r);
+  g.arcTo(x, y+h, x, y, r);
+  g.arcTo(x, y, x+w, y, r);
+  g.closePath();
+}
+function wrapCJK(g, text, maxW, maxLines){
+  const lines = [];
+  let cur = '';
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    if(cur.length && g.measureText(cur + ch).width > maxW){
+      lines.push(cur);
+      cur = ch;
+      if(maxLines && lines.length === maxLines - 1){
+        let rest = cur + text.slice(i+1), last = '';
+        for(const c2 of rest){
+          if(g.measureText(last + c2 + '…').width > maxW) break;
+          last += c2;
+        }
+        lines.push(last + '…');
+        return lines;
+      }
+    } else cur += ch;
+  }
+  if(cur) lines.push(cur);
+  return lines;
+}
+function buildCard(){
+  return new Promise((resolve, reject)=>{
+    const r = LAST;
+    if(!r) return reject(new Error('还没有结果'));
+    const sp = r.sp;
+    const W = 750, H = 1334;
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const g = cv.getContext('2d');
+    const FONT = '"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif';
+    const MONO = 'ui-monospace,Menlo,Consolas,monospace';
+
+    /* 底色 + 极光 */
+    const grd = g.createLinearGradient(0,0,W,H);
+    grd.addColorStop(0,'#FFFAF2'); grd.addColorStop(.45,'#FDF0E1'); grd.addColorStop(1,'#FCE7D5');
+    g.fillStyle = grd; g.fillRect(0,0,W,H);
+    const blob = (x,y,rad,rgb,a)=>{
+      const rg = g.createRadialGradient(x,y,0,x,y,rad);
+      rg.addColorStop(0, 'rgba('+rgb+','+a+')');
+      rg.addColorStop(1, 'rgba('+rgb+',0)');
+      g.fillStyle = rg; g.fillRect(x-rad, y-rad, rad*2, rad*2);
+    };
+    blob(90, 70, 430, '255,198,138', .55);
+    blob(690, 250, 410, '255,166,146', .42);
+    blob(380, 1270, 540, '198,178,232', .30);
+    /* 星点 */
+    for(let i=0;i<90;i++){
+      const x = (i*157)%W, y = (i*263)%H;
+      g.fillStyle = 'rgba(196,140,102,'+(0.05 + ((i*17)%40)/400).toFixed(3)+')';
+      g.fillRect(x, y, 1.6, 1.6);
+    }
+
+    g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    g.fillStyle = 'rgba(180,87,58,.92)';
+    g.font = '600 22px ' + FONT;
+    g.fillText('SYMBIOSIS CODEX  ·  共生体图鉴', W/2, 66);
+
+    /* 稀有度徽章 */
+    g.font = '800 24px ' + FONT;
+    const rarTx = r.tier.name + '  ·  出现概率 ' + pctStr(r.pr);
+    const rarW = g.measureText(rarTx).width + 58;
+    const rarCol = r.tier.k === 'k' ? ['rgba(255,201,110,.55)','#8A5310','rgba(208,140,42,.70)']
+                : r.tier.k === 'sr' ? ['rgba(165,123,184,.22)','#6B4B84','rgba(165,123,184,.55)']
+                : r.tier.k === 'r'  ? ['rgba(63,169,138,.18)','#2C7D69','rgba(63,169,138,.50)']
+                : ['rgba(255,255,255,.70)','#7D6353','rgba(176,124,88,.30)'];
+    g.fillStyle = rarCol[0]; rr(g, W/2-rarW/2, 94, rarW, 50, 25); g.fill();
+    g.strokeStyle = rarCol[2]; g.lineWidth = 1.6; rr(g, W/2-rarW/2, 94, rarW, 50, 25); g.stroke();
+    g.fillStyle = rarCol[1];
+    g.fillText(rarTx, W/2, 128);
+
+    /* 编号 */
+    g.font = '500 21px ' + FONT;
+    g.fillStyle = 'rgba(150,120,100,.92)';
+    g.fillText('No.' + String(sp.no).padStart(2,'0') + ' / 25', W/2, 190);
+
+    /* 物种名 */
+    const nameGrd = g.createLinearGradient(80, 200, 670, 290);
+    nameGrd.addColorStop(0,'#C9622F'); nameGrd.addColorStop(.4,'#E8614E');
+    nameGrd.addColorStop(.75,'#DC8E9C'); nameGrd.addColorStop(1,'#A57BB8');
+    g.fillStyle = nameGrd;
+    let nameSize = 76;
+    g.font = '900 ' + nameSize + 'px ' + FONT;
+    while(g.measureText(sp.name).width > 630 && nameSize > 40){
+      nameSize -= 4; g.font = '900 ' + nameSize + 'px ' + FONT;
+    }
+    g.fillText(sp.name, W/2, 268);
+
+    /* 学名 */
+    g.font = 'italic 500 21px ' + MONO;
+    g.fillStyle = 'rgba(150,122,102,.92)';
+    g.fillText(sp.sci, W/2, 306);
+
+    /* 你 × TA */
+    const pill = (cx, cy, who, val, rgb) => {
+      g.font = '800 27px ' + FONT;
+      const vw = Math.max(126, g.measureText(val).width + 56);
+      g.fillStyle = 'rgba(' + rgb + ',.08)'; rr(g, cx-vw/2, cy, vw, 68, 18); g.fill();
+      g.strokeStyle = 'rgba(' + rgb + ',.42)'; g.lineWidth = 1.5; rr(g, cx-vw/2, cy, vw, 68, 18); g.stroke();
+      g.fillStyle = 'rgba(150,118,96,.92)'; g.font = '600 14px ' + FONT;
+      g.fillText(who, cx, cy+24);
+      g.fillStyle = 'rgba(' + rgb + ',1)'; g.font = '800 27px ' + FONT;
+      g.fillText(val, cx, cy+54);
+    };
+    pill(W/2-122, 340, '你', sp.yu, '232,97,78');
+    pill(W/2+122, 340, 'TA', sp.ta, '63,169,138');
+    g.fillStyle = 'rgba(150,118,96,.75)'; g.font = '400 26px ' + FONT;
+    g.fillText('×', W/2, 384);
+
+    const svg = buildArt(sp, 480, 300, false);
+    const img = new Image();
+    img.onload = () => {
+      try{
+        g.save(); rr(g, 60, 424, 630, 394, 24); g.clip();
+        g.drawImage(img, 60, 424, 630, 394);
+        g.restore();
+        g.strokeStyle = 'rgba(176,124,88,.24)'; g.lineWidth = 1.4;
+        rr(g, 60, 424, 630, 394, 24); g.stroke();
+      }catch(e){ return reject(e); }
+      try{ finishCard(g, cv, r, sp, W, H, FONT, MONO).then(resolve, reject); }
+      catch(e){ reject(e); }
+    };
+    img.onerror = () => reject(new Error('插画解码失败'));
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+function finishCard(g, cv, r, sp, W, H, FONT, MONO){
+  return new Promise((resolve, reject)=>{
+    g.textAlign = 'center';
+
+    /* 座右铭（自动缩字号以塞进两行） */
+    const mottoTx = '「' + sp.motto + '」';
+    let mSize = 27, mLines = [];
+    do{
+      g.font = '600 ' + mSize + 'px ' + FONT;
+      mLines = wrapCJK(g, mottoTx, 606, 0);
+      mSize -= 1;
+    } while(mLines.length > 2 && mSize > 18);
+    g.font = '600 ' + (mSize+1) + 'px ' + FONT;
+    mLines = wrapCJK(g, mottoTx, 606, 2);
+    g.fillStyle = '#42302A';
+    let my = 882;
+    mLines.forEach(t => { g.fillText(t, W/2, my); my += 42; });
+
+    /* 四维 */
+    const dimY = 952, chipW = 160, gap = 12;
+    const startX = (W - (chipW*4 + gap*3)) / 2;
+    DIM_KEYS.forEach((k,i) => {
+      const x = startX + i*(chipW+gap);
+      g.fillStyle = 'rgba(255,255,255,.64)';
+      rr(g, x, dimY, chipW, 92, 16); g.fill();
+      g.strokeStyle = 'rgba(176,124,88,.24)'; g.lineWidth = 1;
+      rr(g, x, dimY, chipW, 92, 16); g.stroke();
+      g.textAlign = 'center';
+      g.fillStyle = DIMS[k].color; g.font = '800 32px ' + MONO;
+      g.fillText(String(r.pct[k]), x+chipW/2, dimY+42);
+      g.fillStyle = 'rgba(138,110,92,.95)'; g.font = '500 16px ' + FONT;
+      g.fillText(DIMS[k].name, x+chipW/2, dimY+68);
+      const bw = chipW-28;
+      g.fillStyle = 'rgba(176,124,88,.18)';
+      rr(g, x+14, dimY+78, bw, 5, 3); g.fill();
+      g.fillStyle = DIMS[k].color;
+      rr(g, x+14, dimY+78, Math.max(5, bw*r.pct[k]/100), 5, 3); g.fill();
+    });
+
+    /* 底牌 */
+    const lx = startX;
+    g.textAlign = 'left';
+    g.font = '700 20px ' + FONT;
+    g.fillStyle = 'rgba(180,87,58,.95)';
+    g.fillText('这段关系的底牌', lx, 1100);
+    g.font = '400 21px ' + FONT;
+    let by = 1136;
+    [['赢在', sp.good[0], 'rgba(44,140,100,.95)'], ['崩点', sp.risk[0], 'rgba(196,71,60,.95)']].forEach(([tag, txt, col]) => {
+      g.fillStyle = col; g.fillText('◆ ' + tag + '　', lx, by);
+      const off = g.measureText('◆ ' + tag + '　').width;
+      g.fillStyle = 'rgba(120,96,80,.95)';
+      const ln = wrapCJK(g, txt, W - lx*2 - off, 1);
+      g.fillText(ln[0] || '', lx + off, by);
+      by += 34;
+    });
+
+    /* 页脚 */
+    g.textAlign = 'center';
+    g.strokeStyle = 'rgba(176,124,88,.24)'; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(70, 1236); g.lineTo(W-70, 1236); g.stroke();
+    g.font = '700 26px ' + FONT;
+    g.fillStyle = 'rgba(180,87,58,.95)';
+    g.fillText('你和 TA 到底是什么物种？', W/2, 1282);
+    g.font = '400 19px ' + FONT;
+    g.fillStyle = 'rgba(150,120,100,.9)';
+    g.fillText('22 道题 · 25 种共生体 · 原创自评工具 · 仅供娱乐', W/2, 1312);
+
+    let url = '';
+    try{ url = cv.toDataURL('image/png'); }catch(e){ return reject(new Error('画布导出被拦截')); }
+    if(!url || url.indexOf('data:image/png') !== 0 || url.length < 5000) return reject(new Error('画布为空'));
+    resolve(url);
+  });
+}
+function exportCard(){
+  toast('正在生成卡片…');
+  buildCard().then(url => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '共生体图鉴_No' + String(LAST.sp.no).padStart(2,'0') + '_' + LAST.sp.name + '.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('卡片已保存到「下载」文件夹');
+  }).catch(e => {
+    toast('卡片生成失败：' + (e && e.message ? e.message : '未知原因'));
+  });
+}
+
+/* ============================================================
+   事件绑定
+   ============================================================ */
+$('btn-start').addEventListener('click', () => { state.i = 0; renderQ(); go('pg-quiz'); });
+$('btn-prev').addEventListener('click', prev);
+$('btn-next').addEventListener('click', next);
+$('q-opts').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if(b) pick(parseInt(b.getAttribute('data-i'), 10));
+});
+$('nav-dots').addEventListener('click', e => {
+  const b = e.target.closest('.nd');
+  if(b) jump(parseInt(b.getAttribute('data-i'), 10));
+});
+$('btn-card').addEventListener('click', exportCard);
+$('btn-copy').addEventListener('click', copyResult);
+$('btn-back').addEventListener('click', () => { go('pg-quiz'); renderQ(); });
+$('btn-again').addEventListener('click', () => {
+  state.ans = new Array(TOTAL).fill(null);
+  state.i = 0;
+  renderQ();
+  go('pg-quiz');
+});
+
+/* 键盘：1/2/3 选项，←→ 翻页 */
+document.addEventListener('keydown', e => {
+  if(!$('pg-quiz').classList.contains('on')) return;
+  const q = QUES[state.i];
+  const n = parseInt(e.key, 10);
+  if(n >= 1 && n <= q.o.length){ pick(n-1); }
+  else if(e.key === 'ArrowRight') next();
+  else if(e.key === 'ArrowLeft') prev();
+});
+
+/* ============================================================
+   初始化
+   ============================================================ */
+$('hero-art').innerHTML = heroArt();
+renderCodex();
+renderQ();
+</script>
+</body>
+</html>
